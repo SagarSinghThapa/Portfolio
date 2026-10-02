@@ -116,14 +116,14 @@ export default function AIChatBot() {
                   <Bot className="w-12 h-12 mx-auto mb-4 opacity-20" />
                   <p>Hi! I can answer questions about Sagar&apos;s experience, projects, and skills.</p>
                   
-                  <div className="mt-6 flex flex-col gap-2">
-                    <button onClick={() => handleSuggestedClick("Tell me about Alpine Explorer")} className="text-xs px-3 py-2 border border-white/10 rounded-full hover:bg-white/5 transition-colors text-left">
+                  <div className="mt-6 flex flex-wrap gap-2 justify-center">
+                    <button onClick={() => handleSuggestedClick("Tell me about Alpine Explorer")} className="text-xs px-4 py-2 border border-white/10 bg-white/5 rounded-full hover:bg-white/10 hover:border-white/20 transition-all text-[#F5F5F7] shadow-sm">
                       Tell me about Alpine Explorer
                     </button>
-                    <button onClick={() => handleSuggestedClick("What did Sagar build at IBM?")} className="text-xs px-3 py-2 border border-white/10 rounded-full hover:bg-white/5 transition-colors text-left">
+                    <button onClick={() => handleSuggestedClick("What did Sagar build at IBM?")} className="text-xs px-4 py-2 border border-white/10 bg-white/5 rounded-full hover:bg-white/10 hover:border-white/20 transition-all text-[#F5F5F7] shadow-sm">
                       What did Sagar build at IBM?
                     </button>
-                    <button onClick={() => handleSuggestedClick("What technologies does Sagar use?")} className="text-xs px-3 py-2 border border-white/10 rounded-full hover:bg-white/5 transition-colors text-left">
+                    <button onClick={() => handleSuggestedClick("What technologies does Sagar use?")} className="text-xs px-4 py-2 border border-white/10 bg-white/5 rounded-full hover:bg-white/10 hover:border-white/20 transition-all text-[#F5F5F7] shadow-sm">
                       What technologies does Sagar use?
                     </button>
                   </div>
@@ -146,7 +146,7 @@ export default function AIChatBot() {
                       ? 'bg-white/10 text-[#F5F5F7] rounded-2xl rounded-tr-sm' 
                       : 'text-[#F5F5F7] bg-transparent rounded-2xl rounded-tl-sm'
                   }`}>
-                    <div className="text-sm leading-relaxed prose prose-invert prose-sm max-w-none">
+                    <div className={`text-sm leading-relaxed prose prose-invert prose-sm max-w-none ${isLoading && m.id === messages[messages.length - 1].id ? '[&>p:last-child]:inline' : ''}`}>
                       {m.parts?.map((part, i) => {
                         if (part.type === 'text') {
                           return m.role === 'user' ? (
@@ -158,23 +158,22 @@ export default function AIChatBot() {
                         return null;
                       })}
                       {isLoading && m.id === messages[messages.length - 1].id && m.role === 'assistant' && (
-                        <span className="inline-block w-1.5 h-3 ml-1 bg-gray-400 animate-pulse align-middle" />
+                        <span className="animate-pulse inline-block ml-1">▌</span>
                       )}
                     </div>
                   </div>
                 </motion.div>
               ))}
               
-              {isLoading && messages.length > 0 && messages[messages.length - 1].role === 'user' && (
+              {isLoading && messages.length > 0 && messages[messages.length - 1].role === 'user' && status !== "streaming" && (
                 <div className="flex gap-3">
-                  <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-600 dark:bg-gray-800 dark:text-gray-300 flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center shrink-0">
                     <Bot className="w-4 h-4" />
                   </div>
-                  <div className="backdrop-blur-md bg-white/10 border border-white/5 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm flex items-center gap-1">
-                    <span className="text-xs text-gray-400 mr-2">Thinking</span>
-                    <motion.div animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0 }} className="w-1.5 h-1.5 bg-gray-400 rounded-full" />
-                    <motion.div animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }} className="w-1.5 h-1.5 bg-gray-400 rounded-full" />
-                    <motion.div animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }} className="w-1.5 h-1.5 bg-gray-400 rounded-full" />
+                  <div className="flex items-center gap-1.5 px-4 py-3">
+                    <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 1.5, delay: 0 }} className="w-2 h-2 bg-gray-500 rounded-full" />
+                    <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 1.5, delay: 0.2 }} className="w-2 h-2 bg-gray-500 rounded-full" />
+                    <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 1.5, delay: 0.4 }} className="w-2 h-2 bg-gray-500 rounded-full" />
                   </div>
                 </div>
               )}
@@ -189,28 +188,28 @@ export default function AIChatBot() {
             </div>
 
             {/* Input Area */}
-            <div className="p-4 bg-transparent border-t border-white/10 relative">
+            <div className="p-4 bg-transparent relative">
               {isLoading && status === "streaming" && (
                 <button
                   onClick={() => stop()}
-                  className="absolute -top-10 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/80 border border-white/20 text-xs px-3 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-black transition-colors"
+                  className="absolute -top-10 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-[#0B0B0F] border border-white/20 text-xs px-3 py-1.5 rounded-full text-gray-300 hover:text-white transition-colors shadow-lg"
                 >
                   <StopCircle className="w-3 h-3" /> Stop generating
                 </button>
               )}
-              <form onSubmit={handleFormSubmit} className="flex gap-2">
+              <form onSubmit={handleFormSubmit} className="relative flex items-center w-full">
                 <input
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  placeholder="Ask a question..."
-                  className="flex-1 bg-black/50 border border-white/10 rounded-full px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 dark:focus:ring-rose-500 transition-all dark:text-white"
+                  placeholder="Message Sagar AI..."
+                  className="w-full bg-[#1A1A24]/80 border border-white/10 rounded-full pl-5 pr-12 py-3.5 text-sm focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/30 transition-all text-[#F5F5F7] placeholder-gray-500"
                 />
                 <button
                   type="submit"
                   disabled={isLoading || !inputValue.trim()}
-                  className="w-10 h-10 rounded-full bg-red-600 dark:bg-rose-500 text-white dark:text-gray-900 flex items-center justify-center hover:bg-red-700 dark:hover:bg-rose-600 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shrink-0"
+                  className="absolute right-2 w-8 h-8 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 active:scale-95 transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100 shrink-0"
                 >
-                  <Send className="w-4 h-4 -ml-0.5" />
+                  <Send className="w-4 h-4 ml-0.5" />
                 </button>
               </form>
             </div>
