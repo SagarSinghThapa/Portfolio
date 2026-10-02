@@ -1,10 +1,189 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { MessageCircle, X, Send, Bot, User, Loader2, StopCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from 'react-markdown';
+
+// --- Markdown Safety Scanner ---
+// Determines the furthest safe reveal position by tracking whether the
+// cursor is currently inside an incomplete Markdown construct.
+// Returns a position, NEVER modifies the text.
+function findSafeRevealEnd(
+  text: string,
+  candidateEnd: number,
+  isStreamDone: boolean
+): number {
+  // Fast path: if stream is done, the full Markdown is complete
+  if (isStreamDone) return candidateEnd;
+  if (candidateEnd <= 0) return 0;
+
+  // Clamp
+  const end = Math.min(candidateEnd, text.length);
+
+  // Track construct state
+  let insideFencedBlock = false;
+  let fenceOpenPos = -1;
+  let insideInlineCode = false;
+  let inlineCodeOpenPos = -1;
+  let insideBold = false;
+  let boldOpenPos = -1;
+  let insideItalic = false;
+  let italicOpenPos = -1;
+  let insideLink = false;
+  let linkOpenPos = -1;
+
+  let i = 0;
+  while (i < end) {
+    // 1. Fenced code blocks (``` at start of line or after newline)
+    if (
+      text.startsWith('```', i) &&
+      (i === 0 || text[i - 1] === '\n')
+    ) {
+      if (!insideFencedBlock) {
+        insideFencedBlock = true;
+        fenceOpenPos = i;
+        // Skip past the fence line
+        const lineEnd = text.indexOf('\n', i + 3);
+        i = lineEnd === -1 ? end : lineEnd + 1;
+        continue;
+      } else {
+        insideFencedBlock = false;
+        fenceOpenPos = -1;
+        i += 3;
+        continue;
+      }
+    }
+
+    // Skip all other construct tracking if inside a fenced block
+    if (insideFencedBlock) {
+      i++;
+      continue;
+    }
+
+    // 2. Inline code (single backtick, not triple)
+    if (text[i] === '`' && !text.startsWith('```', i)) {
+      if (!insideInlineCode) {
+        insideInlineCode = true;
+        inlineCodeOpenPos = i;
+      } else {
+        insideInlineCode = false;
+        inlineCodeOpenPos = -1;
+      }
+      i++;
+      continue;
+    }
+
+    // 3. Bold (**) — check before italic
+    if (text.startsWith('**', i)) {
+      if (!insideBold) {
+        insideBold = true;
+        boldOpenPos = i;
+      } else {
+        insideBold = false;
+        boldOpenPos = -1;
+      }
+      i += 2;
+      continue;
+    }
+
+    // 4. Italic (*) — single asterisk, not part of **
+    if (
+      text[i] === '*' &&
+      !text.startsWith('**', i) &&
+      (i === 0 || text[i - 1] !== '*') &&
+      (i + 1 >= end || text[i + 1] !== '*')
+    ) {
+      if (!insideItalic) {
+        insideItalic = true;
+        italicOpenPos = i;
+      } else {
+        insideItalic = false;
+        italicOpenPos = -1;
+      }
+      i++;
+      continue;
+    }
+
+    // 5. Links [text](url)
+    if (text[i] === '[' && !insideLink) {
+      insideLink = true;
+      linkOpenPos = i;
+      i++;
+      continue;
+    }
+    if (insideLink && text[i] === ')') {
+      insideLink = false;
+      linkOpenPos = -1;
+      i++;
+      continue;
+    }
+
+    i++;
+  }
+
+  // Determine the safe position based on what constructs are open
+  if (insideFencedBlock && fenceOpenPos >= 0) {
+    // Hold back entire fenced block
+    return fenceOpenPos > 0 ? fenceOpenPos : 0;
+  }
+  if (insideInlineCode && inlineCodeOpenPos >= 0) {
+    return inlineCodeOpenPos > 0 ? inlineCodeOpenPos : 0;
+  }
+  if (insideBold && boldOpenPos >= 0) {
+    return boldOpenPos > 0 ? boldOpenPos : 0;
+  }
+  if (insideItalic && italicOpenPos >= 0) {
+    return italicOpenPos > 0 ? italicOpenPos : 0;
+  }
+  if (insideLink && linkOpenPos >= 0) {
+    return linkOpenPos > 0 ? linkOpenPos : 0;
+  }
+
+  // Check for list prefix at the very end (e.g., "- " with no content after)
+  const lastNewline = text.lastIndexOf('\n', end - 1);
+  const lineStart = lastNewline + 1;
+  const trailingLine = text.slice(lineStart, end);
+  if (/^(\d+\.\s*|- \s*|\* \s*)$/.test(trailingLine) && end < text.length) {
+    // List marker with no content yet — hold back to before this line
+    return lineStart > 0 ? lineStart : 0;
+  }
+
+  // Snap to nearest preceding whitespace boundary to avoid mid-word split
+  if (end < text.length && end > 0 && text[end] !== ' ' && text[end] !== '\n') {
+    let snapPos = end;
+    while (snapPos > 0 && text[snapPos - 1] !== ' ' && text[snapPos - 1] !== '\n') {
+      snapPos--;
+    }
+    // If snapping would take us back too far (>30 chars), just use end
+    if (end - snapPos < 30 && snapPos > 0) {
+      return snapPos;
+    }
+  }
+
+  return end;
+}
+
+// Advance from a position forward by N word boundaries
+function advanceByWords(text: string, from: number, wordCount: number): number {
+  let pos = from;
+  let words = 0;
+  while (pos < text.length && words < wordCount) {
+    // Skip whitespace
+    while (pos < text.length && (text[pos] === ' ' || text[pos] === '\n' || text[pos] === '\r' || text[pos] === '\t')) {
+      pos++;
+    }
+    // Skip word characters
+    if (pos < text.length) {
+      while (pos < text.length && text[pos] !== ' ' && text[pos] !== '\n' && text[pos] !== '\r' && text[pos] !== '\t') {
+        pos++;
+      }
+      words++;
+    }
+  }
+  return pos;
+}
 
 export default function AIChatBot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,6 +200,23 @@ export default function AIChatBot() {
   const [userHasScrolled, setUserHasScrolled] = useState(false);
   
   const isLoading = status === "streaming" || status === "submitted";
+
+  // --- Progressive Reveal State ---
+  const [displayText, setDisplayText] = useState("");
+  const revealedLengthRef = useRef(0);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Derive streamedText from the last assistant message (read-only, never modified)
+  const lastMsg = messages.length > 0 ? messages[messages.length - 1] : null;
+  const isLastAssistant = lastMsg?.role === 'assistant';
+  const streamedText = isLastAssistant
+    ? (lastMsg.parts?.filter((p: { type: string }) => p.type === 'text')
+        .map((p: { type: string; text?: string }) => p.text ?? '').join('') ?? '')
+    : '';
+
+  // Derive completion state
+  const isRevealing = displayText.length < streamedText.length;
+  const isFullyComplete = !isLoading && !isRevealing;
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,7 +237,7 @@ export default function AIChatBot() {
     if (messagesEndRef.current && !userHasScrolled) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages, isLoading, userHasScrolled]);
+  }, [messages, isLoading, userHasScrolled, displayText]);
 
   const handleScroll = () => {
     if (!scrollContainerRef.current) return;
@@ -53,6 +249,99 @@ export default function AIChatBot() {
       setUserHasScrolled(true);
     }
   };
+
+  // --- Reset reveal state when user sends a new message ---
+  useEffect(() => {
+    if (messages.length > 0 && messages[messages.length - 1].role === 'user') {
+      revealedLengthRef.current = 0;
+      setDisplayText("");
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    }
+  }, [messages.length]);
+
+  // --- Progressive Reveal Loop ---
+  useEffect(() => {
+    // Clear any existing interval
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
+    // Nothing to reveal
+    if (!streamedText || streamedText.length === 0) return;
+
+    const isStreamDone = status !== "streaming" && status !== "submitted";
+
+    // Already fully revealed and done
+    if (revealedLengthRef.current >= streamedText.length && isStreamDone) {
+      // Ensure displayText is the full text
+      setDisplayText(streamedText);
+      return;
+    }
+
+    // Select speed based on streaming state
+    const intervalMs = isStreamDone ? 10 : 30;
+    const wordsPerTick = isStreamDone ? 5 : 2;
+
+    intervalRef.current = setInterval(() => {
+      const currentPos = revealedLengthRef.current;
+      
+      // Already caught up to what's available
+      if (currentPos >= streamedText.length) {
+        if (isStreamDone) {
+          setDisplayText(streamedText);
+          if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+          }
+        }
+        return;
+      }
+
+      // Find candidate position (advance by N words)
+      const candidateEnd = Math.min(
+        advanceByWords(streamedText, currentPos, wordsPerTick),
+        streamedText.length
+      );
+
+      // Find the safe reveal position
+      const safePos = findSafeRevealEnd(streamedText, candidateEnd, isStreamDone);
+
+      if (safePos > currentPos) {
+        revealedLengthRef.current = safePos;
+        setDisplayText(streamedText.slice(0, safePos));
+      }
+      // If safePos === currentPos, skip this tick (incomplete construct blocking)
+
+      // Check if fully caught up
+      if (revealedLengthRef.current >= streamedText.length && isStreamDone) {
+        setDisplayText(streamedText);
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
+      }
+    }, intervalMs);
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [streamedText, status]);
+
+  // Determine if a message is the actively revealing assistant message
+  const isActiveRevealMessage = useCallback((m: typeof messages[0]) => {
+    return (
+      m.role === 'assistant' &&
+      m.id === lastMsg?.id &&
+      (isLoading || isRevealing)
+    );
+  }, [lastMsg?.id, isLoading, isRevealing]);
 
   return (
     <>
@@ -146,19 +435,29 @@ export default function AIChatBot() {
                       ? 'bg-white/10 text-[#F5F5F7] rounded-2xl rounded-tr-sm' 
                       : 'text-[#F5F5F7] bg-transparent rounded-2xl rounded-tl-sm'
                   }`}>
-                    <div className={`text-sm leading-relaxed prose prose-invert prose-sm max-w-none ${isLoading && m.id === messages[messages.length - 1].id ? '[&>p:last-child]:inline' : ''}`}>
-                      {m.parts?.map((part, i) => {
-                        if (part.type === 'text') {
-                          return m.role === 'user' ? (
-                            <span key={i}>{part.text}</span>
-                          ) : (
-                            <ReactMarkdown key={i}>{part.text}</ReactMarkdown>
-                          );
-                        }
-                        return null;
-                      })}
-                      {isLoading && m.id === messages[messages.length - 1].id && m.role === 'assistant' && (
-                        <span className="animate-pulse inline-block ml-1">▌</span>
+                    <div className={`text-sm leading-relaxed prose prose-invert prose-sm max-w-none ${(isLoading || isRevealing) && m.id === lastMsg?.id ? '[&>p:last-child]:inline' : ''}`}>
+                      {m.role === 'user' ? (
+                        // User messages: render as-is
+                        m.parts?.map((part, i) => {
+                          if (part.type === 'text') {
+                            return <span key={i}>{part.text}</span>;
+                          }
+                          return null;
+                        })
+                      ) : isActiveRevealMessage(m) ? (
+                        // Last assistant message during active reveal: use displayText
+                        <>
+                          <ReactMarkdown>{displayText}</ReactMarkdown>
+                          <span className="animate-pulse inline-block ml-1">▌</span>
+                        </>
+                      ) : (
+                        // Historical/completed assistant messages: render full text
+                        m.parts?.map((part, i) => {
+                          if (part.type === 'text') {
+                            return <ReactMarkdown key={i}>{part.text}</ReactMarkdown>;
+                          }
+                          return null;
+                        })
                       )}
                     </div>
                   </div>
