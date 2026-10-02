@@ -2,8 +2,9 @@
 
 import { useChat } from "@ai-sdk/react";
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, Bot, User, Loader2 } from "lucide-react";
+import { MessageCircle, X, Send, Bot, User, Loader2, StopCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import ReactMarkdown from 'react-markdown';
 
 export default function AIChatBot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,8 +15,10 @@ export default function AIChatBot() {
     }
   });
   
-  const { messages, sendMessage, status, error } = chatState;
+  const { messages, sendMessage, status, error, stop } = chatState;
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [userHasScrolled, setUserHasScrolled] = useState(false);
   
   const isLoading = status === "streaming" || status === "submitted";
 
@@ -25,14 +28,31 @@ export default function AIChatBot() {
     
     sendMessage({ text: inputValue });
     setInputValue("");
+    setUserHasScrolled(false);
   };
 
-  // Auto-scroll to bottom of chat
+  const handleSuggestedClick = (text: string) => {
+    sendMessage({ text });
+    setUserHasScrolled(false);
+  };
+
+  // Auto-scroll to bottom of chat unless user has scrolled up
   useEffect(() => {
-    if (messagesEndRef.current) {
+    if (messagesEndRef.current && !userHasScrolled) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages, isLoading]);
+  }, [messages, isLoading, userHasScrolled]);
+
+  const handleScroll = () => {
+    if (!scrollContainerRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
+    // If we are close to the bottom, resume auto-scroll
+    if (scrollHeight - scrollTop - clientHeight < 50) {
+      setUserHasScrolled(false);
+    } else {
+      setUserHasScrolled(true);
+    }
+  };
 
   return (
     <>
@@ -40,10 +60,10 @@ export default function AIChatBot() {
       <motion.button
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 right-6 z-50 p-4 bg-red-600 dark:bg-rose-500 text-white dark:text-gray-900 rounded-full shadow-2xl hover:shadow-red-500/30 transition-all ${isOpen ? 'hidden' : 'flex'}`}
+        className={`fixed bottom-6 right-6 z-50 p-4 bg-[#0B0B0F]/90 backdrop-blur-md border border-white/10 text-gray-200 rounded-full shadow-2xl hover:bg-gray-800 transition-all ${isOpen ? 'hidden' : 'flex'}`}
         aria-label="Open AI Assistant"
       >
         <MessageCircle className="w-6 h-6" />
@@ -57,22 +77,28 @@ export default function AIChatBot() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 50, scale: 0.9 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-6 right-6 z-50 w-[90vw] max-w-[400px] h-[600px] max-h-[80vh] backdrop-blur-xl bg-black/40 rounded-2xl shadow-2xl border border-white/10 flex flex-col overflow-hidden"
+            className="fixed bottom-6 right-6 z-50 w-[calc(100vw-32px)] max-w-[460px] h-[700px] max-h-[calc(100dvh-32px)] backdrop-blur-xl bg-[#0B0B0F]/90 rounded-2xl shadow-2xl border border-white/10 flex flex-col overflow-hidden"
           >
             {/* Header */}
-            <div className="bg-red-600 dark:bg-rose-500 p-4 flex items-center justify-between text-white dark:text-gray-900">
+            <div className="p-4 flex items-center justify-between text-white border-b border-white/10 bg-transparent">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-white/20 rounded-full">
+                <div className="p-2 bg-white/10 rounded-full">
                   <Bot className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg leading-tight">AI Assistant</h3>
-                  <p className="text-xs opacity-90">Ask me about Sagar&apos;s work!</p>
+                  <h3 className="font-bold text-base leading-tight flex items-center gap-2">
+                    Sagar AI
+                    <span className="flex h-2 w-2 relative">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                    </span>
+                  </h3>
+                  <p className="text-xs text-[#A1A1AA]">Portfolio Assistant</p>
                 </div>
               </div>
               <button 
                 onClick={() => setIsOpen(false)}
-                className="p-2 hover:bg-white/20 rounded-full transition-colors"
+                className="p-2 text-[#A1A1AA] hover:text-white hover:bg-white/10 rounded-full transition-colors"
                 aria-label="Close chat"
               >
                 <X className="w-5 h-5" />
@@ -80,38 +106,60 @@ export default function AIChatBot() {
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-transparent">
+            <div 
+              ref={scrollContainerRef}
+              onScroll={handleScroll}
+              className="flex-1 overflow-y-auto p-4 space-y-4 bg-transparent"
+            >
               {messages.length === 0 && (
                 <div className="text-center text-gray-500 dark:text-gray-400 mt-8">
                   <Bot className="w-12 h-12 mx-auto mb-4 opacity-20" />
                   <p>Hi! I can answer questions about Sagar&apos;s experience, projects, and skills.</p>
-                  <p className="text-sm mt-2">Try asking: "What did Sagar build at IBM?"</p>
+                  
+                  <div className="mt-6 flex flex-col gap-2">
+                    <button onClick={() => handleSuggestedClick("Tell me about Alpine Explorer")} className="text-xs px-3 py-2 border border-white/10 rounded-full hover:bg-white/5 transition-colors text-left">
+                      Tell me about Alpine Explorer
+                    </button>
+                    <button onClick={() => handleSuggestedClick("What did Sagar build at IBM?")} className="text-xs px-3 py-2 border border-white/10 rounded-full hover:bg-white/5 transition-colors text-left">
+                      What did Sagar build at IBM?
+                    </button>
+                    <button onClick={() => handleSuggestedClick("What technologies does Sagar use?")} className="text-xs px-3 py-2 border border-white/10 rounded-full hover:bg-white/5 transition-colors text-left">
+                      What technologies does Sagar use?
+                    </button>
+                  </div>
                 </div>
               )}
               
               {messages.map((m) => (
                 <motion.div 
                   key={m.id} 
-                  initial={{ opacity: 0, y: 10, filter: "blur(5px)" }}
-                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                  transition={{ duration: m.role === 'user' ? 0.3 : 0.6, ease: "easeOut" }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: m.role === 'user' ? 0.2 : 0.4, ease: "easeOut" }}
                   className={`flex gap-3 ${m.role === 'user' ? 'flex-row-reverse' : ''}`}
                 >
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${m.role === 'user' ? 'bg-red-900/30 text-red-500 dark:text-rose-400' : 'bg-gray-200 text-gray-600 dark:bg-gray-800 dark:text-gray-300'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${m.role === 'user' ? 'bg-gray-800 text-gray-300' : 'bg-white/10 text-white'}`}>
                     {m.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
                   </div>
-                  <div className={`max-w-[80%] rounded-2xl px-4 py-2 ${
+                  <div className={`max-w-[85%] px-4 py-3 ${
                     m.role === 'user' 
-                      ? 'bg-red-600 text-white dark:bg-rose-500 dark:text-gray-900 rounded-tr-sm' 
-                      : 'backdrop-blur-md bg-white/10 text-white border border-white/5 rounded-tl-sm shadow-sm'
+                      ? 'bg-white/10 text-[#F5F5F7] rounded-2xl rounded-tr-sm' 
+                      : 'text-[#F5F5F7] bg-transparent rounded-2xl rounded-tl-sm'
                   }`}>
-                    <div className="text-sm whitespace-pre-wrap leading-relaxed">
+                    <div className="text-sm leading-relaxed prose prose-invert prose-sm max-w-none">
                       {m.parts?.map((part, i) => {
                         if (part.type === 'text') {
-                          return <span key={i}>{part.text}</span>;
+                          return m.role === 'user' ? (
+                            <span key={i}>{part.text}</span>
+                          ) : (
+                            <ReactMarkdown key={i}>{part.text}</ReactMarkdown>
+                          );
                         }
                         return null;
                       })}
+                      {isLoading && m.id === messages[messages.length - 1].id && m.role === 'assistant' && (
+                        <span className="inline-block w-1.5 h-3 ml-1 bg-gray-400 animate-pulse align-middle" />
+                      )}
                     </div>
                   </div>
                 </motion.div>
@@ -123,6 +171,7 @@ export default function AIChatBot() {
                     <Bot className="w-4 h-4" />
                   </div>
                   <div className="backdrop-blur-md bg-white/10 border border-white/5 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm flex items-center gap-1">
+                    <span className="text-xs text-gray-400 mr-2">Thinking</span>
                     <motion.div animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0 }} className="w-1.5 h-1.5 bg-gray-400 rounded-full" />
                     <motion.div animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }} className="w-1.5 h-1.5 bg-gray-400 rounded-full" />
                     <motion.div animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }} className="w-1.5 h-1.5 bg-gray-400 rounded-full" />
@@ -131,16 +180,24 @@ export default function AIChatBot() {
               )}
               
               {error && (
-                <div className="text-center text-sm text-red-500 mt-2">
-                  Failed to get response. Is your API key correct?
+                <div className="text-center text-sm text-red-500 mt-2 bg-red-500/10 p-2 rounded-lg">
+                  Sorry, I couldn't complete that response. Please try again.
                 </div>
               )}
               
-              <div ref={messagesEndRef} />
+              <div ref={messagesEndRef} className="h-1" />
             </div>
 
             {/* Input Area */}
-            <div className="p-4 bg-transparent border-t border-white/10">
+            <div className="p-4 bg-transparent border-t border-white/10 relative">
+              {isLoading && status === "streaming" && (
+                <button
+                  onClick={() => stop()}
+                  className="absolute -top-10 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/80 border border-white/20 text-xs px-3 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-black transition-colors"
+                >
+                  <StopCircle className="w-3 h-3" /> Stop generating
+                </button>
+              )}
               <form onSubmit={handleFormSubmit} className="flex gap-2">
                 <input
                   value={inputValue}
@@ -151,9 +208,9 @@ export default function AIChatBot() {
                 <button
                   type="submit"
                   disabled={isLoading || !inputValue.trim()}
-                  className="w-10 h-10 rounded-full bg-red-600 dark:bg-rose-500 text-white dark:text-gray-900 flex items-center justify-center hover:bg-red-700 dark:hover:bg-rose-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+                  className="w-10 h-10 rounded-full bg-red-600 dark:bg-rose-500 text-white dark:text-gray-900 flex items-center justify-center hover:bg-red-700 dark:hover:bg-rose-600 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shrink-0"
                 >
-                  {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4 -ml-0.5" />}
+                  <Send className="w-4 h-4 -ml-0.5" />
                 </button>
               </form>
             </div>
