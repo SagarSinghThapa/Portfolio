@@ -43,7 +43,7 @@ export default function Education() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between text-gray-600 dark:text-gray-400 mb-6">
               <p className="font-semibold">University of Petroleum and Energy Studies (UPES)</p>
               <p className="font-medium bg-red-900/30 text-red-500 dark:text-rose-400 px-3 py-1 rounded-full text-sm inline-block w-max mt-2 sm:mt-0">
-                Expected Graduation: 2028
+                Expected Graduation: 2027
               </p>
             </div>
 

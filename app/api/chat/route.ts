@@ -9,8 +9,33 @@ const google = createGoogleGenerativeAI({
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
+const rateLimitMap = new Map<string, { count: number; lastReset: number }>();
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+const MAX_REQUESTS = 10;
+
 export async function POST(req: Request) {
   try {
+    const ip = req.headers.get("x-forwarded-for") || "unknown";
+    const now = Date.now();
+    
+    if (ip !== "unknown") {
+      const windowData = rateLimitMap.get(ip) || { count: 0, lastReset: now };
+      if (now - windowData.lastReset > RATE_LIMIT_WINDOW) {
+        windowData.count = 1;
+        windowData.lastReset = now;
+      } else {
+        windowData.count++;
+      }
+      rateLimitMap.set(ip, windowData);
+      
+      if (windowData.count > MAX_REQUESTS) {
+        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again later." }), {
+          status: 429,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+    }
+
     const { messages }: { messages: UIMessage[] } = await req.json();
 
     const systemPrompt = `You are a helpful, professional, and friendly AI assistant embedded in the portfolio website of Sagar Singh Thapa.
@@ -18,9 +43,9 @@ Your primary goal is to answer questions about Sagar's experience, skills, and p
 Keep your answers concise, clear, and engaging. Avoid hallucinating information not present in the context.
 
 Context about Sagar Singh Thapa:
-- Education: B.Tech in Computer Science and Engineering, specializing in Data Science at the University of Petroleum and Energy Studies (UPES), Expected Graduation 2028.
+- Education: B.Tech in Computer Science and Engineering, specializing in Data Science at the University of Petroleum and Energy Studies (UPES), Expected Graduation 2027.
 - Location: Dehradun, India.
-- Email: sagar@example.com (Placeholder, users can use the Contact form)
+- Email: sagarsinghthapa639@gmail.com (Users can also use the Contact form)
 - GitHub: https://github.com/SagarSinghThapa
 - LinkedIn: https://linkedin.com/in/sagar1830
 

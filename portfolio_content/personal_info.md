@@ -59,7 +59,7 @@ Computer Science undergraduate specializing in Data Science with hands-on experi
 
 **Bachelor of Technology in Computer Science and Engineering**
 
-*University of Petroleum and Energy Studies (UPES), Expected Graduation 2028*
+*University of Petroleum and Energy Studies (UPES), Expected Graduation 2027*
 
 * Specialization: Data Science
 * Relevant coursework: Machine Learning, Data Science, Database Management Systems, Object-Oriented Programming, Data Structures and Algorithms, Computer Networks

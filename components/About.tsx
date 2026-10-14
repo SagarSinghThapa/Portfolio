@@ -26,7 +26,7 @@ export default function About() {
             className="space-y-6 text-lg text-gray-600 dark:text-gray-300 leading-relaxed"
           >
             <p>
-              I am a <strong>Computer Science undergraduate</strong> at the University of Petroleum and Energy Studies (UPES), specializing in <strong>Data Science</strong> (Expected 2028).
+              I am a <strong>Computer Science undergraduate</strong> at the University of Petroleum and Energy Studies (UPES), specializing in <strong>Data Science</strong> (Expected 2027).
             </p>
             <p>
               My passion lies in bridging the gap between complex data algorithms and user-centric applications. I am highly experienced in building machine learning pipelines, working with multispectral satellite imagery, and developing state-of-the-art GenAI systems including RAG (Retrieval-Augmented Generation) and multi-agent architectures.

@@ -2,18 +2,59 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { getDatabase } from "@/lib/mongodb";
 
+import { z } from "zod";
+
 const resend = new Resend(process.env.RESEND_API_KEY);
+
+const contactSchema = z.object({
+  name: z.string().min(1, "Name is required").max(100, "Name is too long"),
+  email: z.string().email("Invalid email address"),
+  subject: z.string().min(1, "Subject is required").max(150, "Subject is too long"),
+  message: z.string().min(1, "Message is required").max(500, "Message is too long (max 500 characters)"),
+});
+
+// Basic in-memory rate limiting (Note: state resets on serverless cold starts)
+const rateLimitMap = new Map<string, { count: number; lastReset: number }>();
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+const MAX_REQUESTS = 5;
 
 export async function POST(req: Request) {
   try {
-    const { name, email, subject, message } = await req.json();
+    // Attempt to get an IP address for rate limiting
+    const ip = req.headers.get("x-forwarded-for") || "unknown";
+    const now = Date.now();
+    
+    if (ip !== "unknown") {
+      const windowData = rateLimitMap.get(ip) || { count: 0, lastReset: now };
+      
+      if (now - windowData.lastReset > RATE_LIMIT_WINDOW) {
+        windowData.count = 1;
+        windowData.lastReset = now;
+      } else {
+        windowData.count++;
+      }
+      
+      rateLimitMap.set(ip, windowData);
+      
+      if (windowData.count > MAX_REQUESTS) {
+        return NextResponse.json(
+          { error: "Too many requests. Please try again later." },
+          { status: 429 }
+        );
+      }
+    }
 
-    if (!name || !email || !subject || !message) {
+    const body = await req.json();
+    const parsed = contactSchema.safeParse(body);
+
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: parsed.error.issues[0].message },
         { status: 400 }
       );
     }
+
+    const { name, email, subject, message } = parsed.data;
 
     let savedToDb = false;
     let dbError: string | null = null;

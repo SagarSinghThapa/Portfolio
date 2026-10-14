@@ -17,7 +17,7 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
-      className="group flex flex-col justify-between backdrop-blur-md bg-black/20 border border-white/5 rounded-2xl overflow-hidden hover:bg-black/40 hover:shadow-2xl transition-all"
+      className="group flex flex-col justify-between backdrop-blur-md bg-black/20 border border-white/5 rounded-2xl overflow-hidden hover:bg-black/40 hover:border-white/10 hover:shadow-[0_8px_30px_rgba(220,38,38,0.1)] dark:hover:shadow-[0_8px_30px_rgba(244,63,94,0.1)] transition-all duration-300 motion-safe:hover:-translate-y-1"
     >
       <div className="p-8">
         <div className="flex gap-2 flex-wrap mb-6">

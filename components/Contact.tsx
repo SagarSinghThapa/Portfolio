@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Send, Mail, MapPin } from "lucide-react";
 import { useState } from "react";
 
@@ -88,8 +88,8 @@ export default function Contact() {
                 </div>
                 <div>
                   <p className="font-semibold text-gray-900 dark:text-white">Email</p>
-                  <a href="mailto:sagar@example.com" className="hover:text-red-500 dark:hover:text-rose-400 transition-colors">
-                    sagar@example.com
+                  <a href="mailto:sagarsinghthapa639@gmail.com" className="hover:text-red-500 dark:hover:text-rose-400 transition-colors">
+                    sagarsinghthapa639@gmail.com
                   </a>
                 </div>
               </div>
@@ -123,7 +123,7 @@ export default function Contact() {
                       name="name"
                       required
                       className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-lg focus:ring-2 focus:ring-red-500 dark:focus:ring-rose-500 focus:border-transparent outline-none transition-all dark:text-white"
-                      placeholder="John Doe"
+                      placeholder="Your Name"
                     />
                   </div>
                   <div>
@@ -134,7 +134,7 @@ export default function Contact() {
                       name="email"
                       required
                       className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-lg focus:ring-2 focus:ring-red-500 dark:focus:ring-rose-500 focus:border-transparent outline-none transition-all dark:text-white"
-                      placeholder="john@example.com"
+                      placeholder="you@example.com"
                     />
                   </div>
                 </div>
@@ -163,11 +163,18 @@ export default function Contact() {
                   />
                 </div>
                 
-                {status.message && (
-                  <div className={`p-4 rounded-lg text-sm font-medium ${status.type === "success" ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-700 border border-red-200"}`}>
-                    {status.message}
-                  </div>
-                )}
+                <AnimatePresence>
+                  {status.message && (
+                    <motion.div 
+                      initial={{ opacity: 0, height: 0 }} 
+                      animate={{ opacity: 1, height: 'auto' }} 
+                      exit={{ opacity: 0, height: 0 }}
+                      className={`p-4 rounded-lg text-sm font-medium ${status.type === "success" ? "bg-green-500/20 text-green-400 border border-green-500/30" : "bg-red-500/20 text-red-400 border border-red-500/30"}`}
+                    >
+                      {status.message}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
                 
                 <button 
                   type="submit" 

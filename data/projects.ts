@@ -31,8 +31,8 @@ export const projects: Project[] = [
       "Planned evaluation includes mean IoU, per-class F1, IoU, Dice, calibration, false-safe rate, unseen-location/date generalisation.",
       "The intended outcome is a reproducible academic platform combining multispectral terrain segmentation and multimodal route-risk analysis."
     ],
-    githubUrl: "#", // Placeholder
-    demoUrl: "#", // Placeholder
+
+
     categories: ["AI/ML", "Data Science", "Web Dev"]
   },
   {
@@ -52,7 +52,7 @@ export const projects: Project[] = [
       "Automated the generation of campaign insights, significantly reducing the manual reporting hours required by marketing teams.",
       "Improved the precision of ad targeting through dynamic audience segmentation and real-time anomaly flagging."
     ],
-    githubUrl: "#", // Placeholder
+
     categories: ["Data Science", "Web Dev"]
   },
   {
@@ -72,7 +72,7 @@ export const projects: Project[] = [
       "Achieved significantly lower hallucination rates compared to naive RAG implementations.",
       "Created a scalable foundation for deploying deterministic, enterprise-grade AI assistants that rely on verified proprietary data."
     ],
-    githubUrl: "#", // Placeholder
+
     categories: ["AI/ML", "Web Dev"]
   }
 ];

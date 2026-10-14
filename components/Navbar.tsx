@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
-import { ThemeToggle } from './ThemeToggle';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const NAV_LINKS = [
@@ -39,19 +38,17 @@ export default function Navbar() {
               </Link>
             ))}
             <a 
-              href="/resume.pdf" 
+              href="/Sagar_Singh_Thapa_Resume.pdf" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-sm font-medium px-4 py-2 rounded-full border border-white/20 text-white hover:bg-white/10 transition-colors"
+              className="text-sm font-medium px-5 py-2 rounded-full border border-red-500/30 bg-red-900/20 text-red-100 hover:bg-red-600/40 hover:text-white transition-all shadow-[0_0_15px_rgba(220,38,38,0.1)] hover:shadow-[0_0_20px_rgba(220,38,38,0.3)] focus:ring-2 focus:ring-red-500 outline-none"
             >
               Resume
             </a>
-            <ThemeToggle />
           </div>
 
           {/* Mobile Menu Button */}
           <div className="flex md:hidden items-center space-x-4">
-            <ThemeToggle />
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="p-2 text-white focus:outline-none"
@@ -83,15 +80,17 @@ export default function Navbar() {
                   {link.name}
                 </Link>
               ))}
-              <a 
-                href="/resume.pdf" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                onClick={() => setIsOpen(false)}
-                className="block px-3 py-2 rounded-md text-base font-medium text-red-500 dark:text-rose-400 hover:bg-white/10 transition-colors"
-              >
-                Download Resume
-              </a>
+              <div className="mt-2 pt-2 border-t border-white/10">
+                <a 
+                  href="/Sagar_Singh_Thapa_Resume.pdf" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  onClick={() => setIsOpen(false)}
+                  className="block px-3 py-2 rounded-md text-base font-medium text-red-500 dark:text-rose-400 hover:bg-red-900/20 transition-colors"
+                >
+                  Resume
+                </a>
+              </div>
             </div>
           </motion.div>
         )}
