@@ -45,7 +45,7 @@ export default function Contact() {
           message: result.error || "Failed to send message.",
         });
       }
-    } catch (error) {
+    } catch {
       setStatus({
         type: "error",
         message: "An unexpected error occurred. Please try again later.",

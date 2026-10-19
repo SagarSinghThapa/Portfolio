@@ -22,7 +22,7 @@ async function getRepos(): Promise<Repo[]> {
     }
     
     return res.json();
-  } catch (error) {
+  } catch {
     return [];
   }
 }

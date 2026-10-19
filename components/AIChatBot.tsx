@@ -2,7 +2,7 @@
 
 import { useChat } from "@ai-sdk/react";
 import { useState, useRef, useEffect, useCallback } from "react";
-import { MessageCircle, X, Send, Bot, User, Loader2, StopCircle } from "lucide-react";
+import { MessageCircle, X, Send, Bot, User, StopCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from 'react-markdown';
 
@@ -216,18 +216,28 @@ export default function AIChatBot() {
 
   // Derive completion state
   const isRevealing = displayText.length < streamedText.length;
-  const isFullyComplete = !isLoading && !isRevealing;
+
+  const resetRevealState = () => {
+    revealedLengthRef.current = 0;
+    setDisplayText("");
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  };
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputValue.trim() || isLoading) return;
     
+    resetRevealState();
     sendMessage({ text: inputValue });
     setInputValue("");
     setUserHasScrolled(false);
   };
 
   const handleSuggestedClick = (text: string) => {
+    resetRevealState();
     sendMessage({ text });
     setUserHasScrolled(false);
   };
@@ -249,18 +259,6 @@ export default function AIChatBot() {
       setUserHasScrolled(true);
     }
   };
-
-  // --- Reset reveal state when user sends a new message ---
-  useEffect(() => {
-    if (messages.length > 0 && messages[messages.length - 1].role === 'user') {
-      revealedLengthRef.current = 0;
-      setDisplayText("");
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-    }
-  }, [messages.length]);
 
   // --- Progressive Reveal Loop ---
   useEffect(() => {
@@ -479,7 +477,7 @@ export default function AIChatBot() {
               
               {error && (
                 <div className="text-center text-sm text-red-500 mt-2 bg-red-500/10 p-2 rounded-lg">
-                  Sorry, I couldn't complete that response. Please try again.
+                  Sorry, I couldn&apos;t complete that response. Please try again.
                 </div>
               )}
               
