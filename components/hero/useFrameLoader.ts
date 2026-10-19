@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { HERO_FRAME_PATHS } from "./heroFrameConfig";
 
 interface UseFrameLoaderOptions {
@@ -40,18 +40,15 @@ export function useFrameLoader(
   const { frameStep = 1 } = options;
 
   // Build the list of frame indices we actually want to load
-  const frameIndices = useRef<number[]>([]);
-  const framePaths = useRef<string[]>([]);
-
-  // Compute once based on frameStep
-  if (frameIndices.current.length === 0) {
+  const frameIndices = useMemo(() => {
+    const indices: number[] = [];
     for (let i = 0; i < HERO_FRAME_PATHS.length; i += frameStep) {
-      frameIndices.current.push(i);
-      framePaths.current.push(HERO_FRAME_PATHS[i]);
+      indices.push(i);
     }
-  }
+    return indices;
+  }, [frameStep]);
 
-  const totalFrames = frameIndices.current.length;
+  const totalFrames = frameIndices.length;
 
   // Image storage — ref, not state
   const imagesRef = useRef<(HTMLImageElement | null)[]>(
@@ -134,7 +131,7 @@ export function useFrameLoader(
     loadingStartedRef.current = true;
     mountedRef.current = true;
 
-    const indicesToLoad = [...frameIndices.current];
+    const indicesToLoad = [...frameIndices];
     const criticalIndices = indicesToLoad.slice(0, CRITICAL_BATCH_SIZE);
     const remainingIndices = indicesToLoad.slice(CRITICAL_BATCH_SIZE);
 
@@ -164,19 +161,21 @@ export function useFrameLoader(
       scheduleRemaining();
     });
 
+    const pendingImages = pendingImagesRef.current;
+
     return () => {
       mountedRef.current = false;
       loadingStartedRef.current = false; // FIX: Allow effect to re-run in Strict Mode
 
       // Cancel pending image loads
-      pendingImagesRef.current.forEach((img) => {
+      pendingImages.forEach((img) => {
         img.onload = null;
         img.onerror = null;
         img.src = "";
       });
-      pendingImagesRef.current.clear();
+      pendingImages.clear();
     };
-  }, [loadBatch]);
+  }, [loadBatch, frameIndices]);
 
   return { imagesRef, loadedCount, isReady, totalFrames };
 }

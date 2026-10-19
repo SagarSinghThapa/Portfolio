@@ -1,29 +1,49 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import HeroCanvas from "./hero/HeroCanvas";
 import { useFrameLoader } from "./hero/useFrameLoader";
 import { useGlobalScroll } from "./useGlobalScroll";
 
+function subscribeReducedMotion(callback: () => void) {
+  const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+  mq.addEventListener("change", callback);
+  return () => mq.removeEventListener("change", callback);
+}
+
+function getReducedMotionSnapshot() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function getReducedMotionServerSnapshot() {
+  return false;
+}
+
+function subscribeResize(callback: () => void) {
+  window.addEventListener("resize", callback, { passive: true });
+  return () => window.removeEventListener("resize", callback);
+}
+
+function getIsMobileSnapshot() {
+  return window.innerWidth <= 768;
+}
+
+function getIsMobileServerSnapshot() {
+  return false;
+}
+
 export default function GlobalCinematicBackground() {
-  const [reducedMotion, setReducedMotion] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const reducedMotion = useSyncExternalStore(
+    subscribeReducedMotion,
+    getReducedMotionSnapshot,
+    getReducedMotionServerSnapshot
+  );
 
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReducedMotion(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
-
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth <= 768);
-    check();
-    const onResize = () => check();
-    window.addEventListener("resize", onResize, { passive: true });
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
+  const isMobile = useSyncExternalStore(
+    subscribeResize,
+    getIsMobileSnapshot,
+    getIsMobileServerSnapshot
+  );
 
   const { imagesRef, totalFrames } = useFrameLoader(
     reducedMotion ? { frameStep: 240 } : { frameStep: isMobile ? 2 : 1 }
