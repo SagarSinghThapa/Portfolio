@@ -105,8 +105,23 @@ html {
   animation: gradient-shift 8s ease-in-out infinite;
 }
 
+/* 4-Color Hero Gradient Text (Cyan, Blue, Violet, Pink) */
+.hero-gradient-text {
+  background-image: linear-gradient(
+    90deg,
+    #67E8F9 0%,
+    #60A5FA 25%,
+    #A78BFA 50%,
+    #F472B6 75%,
+    #67E8F9 100%
+  );
+  background-size: 300% 300%;
+  animation: gradient-shift 9s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .animate-gradient-text {
+  .animate-gradient-text,
+  .hero-gradient-text {
     animation: none;
     background-size: 100% 100%;
   }
