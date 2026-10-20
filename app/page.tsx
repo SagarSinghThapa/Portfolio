@@ -7,6 +7,7 @@ import Education from "@/components/Education";
 import GitHubActivity from "@/components/GitHubActivity";
 import Contact from "@/components/Contact";
 import GlobalCinematicBackground from "@/components/GlobalCinematicBackground";
+import GuidedJourney from "@/components/GuidedJourney";
 
 export default function Home() {
   return (
@@ -31,6 +32,9 @@ export default function Home() {
         
         <Contact />
       </div>
+
+      {/* Non-blocking guided portfolio journey widget */}
+      <GuidedJourney />
     </>
   );
 }
