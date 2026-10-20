@@ -69,7 +69,7 @@ export default function GuidedJourney() {
 
   return (
     <aside
-      className="fixed bottom-6 left-6 z-40 select-none"
+      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 select-none"
       aria-label="Guided Portfolio Journey"
     >
       <AnimatePresence mode="wait">
