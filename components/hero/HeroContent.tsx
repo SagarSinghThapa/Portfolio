@@ -53,7 +53,13 @@ export default function HeroContent({
       <MotionDiv {...getMotionProps(0.3)}>
         <h1 className="text-3xl sm:text-5xl md:text-7xl font-extrabold tracking-tight mb-6 text-white drop-shadow-lg">
           Hi, I&apos;m{" "}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-rose-400">
+          <span
+            className="text-transparent bg-clip-text animate-gradient-text"
+            style={{
+              backgroundImage:
+                "linear-gradient(90deg, #f87171, #f472b6, #a78bfa, #60a5fa, #67e8f9, #f87171)",
+            }}
+          >
             Sagar
           </span>
         </h1>
