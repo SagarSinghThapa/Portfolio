@@ -41,6 +41,7 @@ export default function Hero() {
   if (reducedMotion) {
     return (
       <section
+        id="hero"
         className="relative w-full min-h-screen flex items-center justify-center overflow-hidden"
         aria-label="Hero introduction"
       >
@@ -53,7 +54,11 @@ export default function Hero() {
   }
 
   return (
-    <section className="relative w-full min-h-screen flex items-center justify-center" aria-label="Hero introduction">
+    <section
+      id="hero"
+      className="relative w-full min-h-screen flex items-center justify-center"
+      aria-label="Hero introduction"
+    >
       {/* Hero content — z-20 */}
       <div className="relative z-20 flex items-center justify-center w-full h-full">
         <HeroContent scrollProgress={scrollProgress} />

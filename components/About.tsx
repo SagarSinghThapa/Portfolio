@@ -13,8 +13,8 @@ export default function About() {
           transition={{ duration: 0.5 }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">About Me</h2>
-          <div className="w-20 h-1.5 bg-red-600 dark:bg-rose-500 mx-auto rounded-full" />
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#FAFAFA]">About Me</h2>
+          <div className="w-20 h-1.5 rounded-full bg-gradient-to-r from-[#67E8F9] via-[#A78BFA] to-[#F472B6] mx-auto" />
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
@@ -23,10 +23,10 @@ export default function About() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="space-y-6 text-lg text-gray-600 dark:text-gray-300 leading-relaxed"
+            className="space-y-6 text-lg text-[#D4D4D8] leading-relaxed"
           >
             <p>
-              I am a <strong>Computer Science undergraduate</strong> at the University of Petroleum and Energy Studies (UPES), specializing in <strong>Data Science</strong> (Expected 2027).
+              I am a <strong className="text-[#FAFAFA] font-semibold">Computer Science undergraduate</strong> at the University of Petroleum and Energy Studies (UPES), specializing in <strong className="text-[#FAFAFA] font-semibold">Data Science</strong> (Expected 2027).
             </p>
             <p>
               My passion lies in bridging the gap between complex data algorithms and user-centric applications. I am highly experienced in building machine learning pipelines, working with multispectral satellite imagery, and developing state-of-the-art GenAI systems including RAG (Retrieval-Augmented Generation) and multi-agent architectures.
@@ -43,11 +43,16 @@ export default function About() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="relative h-[400px] rounded-2xl overflow-hidden shadow-2xl group"
           >
-            {/* Subtle glass block until a photo is provided */}
-            <div className="absolute inset-0 backdrop-blur-sm bg-red-900/10 border border-white/5 group-hover:bg-red-900/20 transition-colors duration-700 ease-in-out" />
-            <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500" />
-            <div className="absolute bottom-6 left-6 right-6 text-white text-center">
-              <p className="font-medium text-lg">Always learning, building, and growing.</p>
+            {/* Luxury frosted glass card */}
+            <div className="absolute inset-0 backdrop-blur-xl bg-black/30 border border-white/[0.08] rounded-2xl group-hover:border-white/20 transition-all duration-700 ease-in-out" />
+            <div className="absolute inset-0 bg-gradient-to-br from-white/[0.04] to-transparent pointer-events-none" />
+            <div className="absolute bottom-8 left-8 right-8 text-center">
+              <div className="inline-block px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold uppercase tracking-widest text-transparent bg-clip-text hero-gradient-text mb-3">
+                Philosophy
+              </div>
+              <p className="font-semibold text-xl text-[#FAFAFA] drop-shadow-md">
+                Always learning, building, and growing.
+              </p>
             </div>
           </motion.div>
         </div>

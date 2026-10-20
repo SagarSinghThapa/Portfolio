@@ -52,22 +52,30 @@ export default function HeroContent({
     >
       <MotionDiv
         {...getMotionProps(0.3)}
-        className="backdrop-blur-xl bg-black/40 border border-white/10 rounded-3xl p-8 sm:p-12 shadow-2xl text-left"
+        className="backdrop-blur-2xl bg-black/35 border border-white/[0.08] rounded-3xl p-8 sm:p-12 shadow-2xl text-left"
       >
         {/* Supertitle badge */}
         <p className="text-xs uppercase tracking-widest font-semibold text-rose-400/90 mb-3">
           PORTFOLIO · 2026
         </p>
 
-        {/* Role label with animated gradient */}
-        <p className="text-sm sm:text-base font-bold tracking-wider uppercase mb-4">
+        {/* Identity Greeting */}
+        <div className="text-2xl sm:text-3xl font-extrabold text-[#FAFAFA] mb-3 flex items-center gap-2">
+          <span>Hi, I&apos;m</span>
           <span className="text-transparent bg-clip-text hero-gradient-text">
+            Sagar
+          </span>
+        </div>
+
+        {/* Role badge */}
+        <div className="mb-4">
+          <span className="text-xs sm:text-sm font-bold tracking-wider uppercase inline-block text-rose-300/95 bg-rose-950/40 px-3.5 py-1.5 rounded-full border border-rose-500/20 backdrop-blur-sm">
             ML ENGINEER &amp; DEVELOPER
           </span>
-        </p>
+        </div>
 
         {/* Main headline with animated gradient emphasis */}
-        <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-6 leading-tight text-white drop-shadow-md">
+        <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-6 leading-tight text-[#FAFAFA] drop-shadow-md">
           Building{" "}
           <span className="text-transparent bg-clip-text hero-gradient-text">
             intelligent solutions
@@ -79,7 +87,7 @@ export default function HeroContent({
         </h1>
 
         {/* Paragraph text — high contrast readability */}
-        <p className="text-base sm:text-lg text-gray-300 mb-8 leading-relaxed max-w-3xl drop-shadow-sm">
+        <p className="text-base sm:text-lg text-[#D4D4D8] mb-8 leading-relaxed max-w-3xl drop-shadow-sm">
           I work across machine learning, AI-powered applications, and full-stack
           development to turn ideas into useful products.
         </p>
@@ -102,12 +110,12 @@ export default function HeroContent({
         </div>
 
         {/* Technology tags and social links */}
-        <div className="pt-6 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="pt-6 border-t border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex flex-wrap items-center gap-2">
             {TECH_PILLS.map((tech) => (
               <span
                 key={tech}
-                className="px-3.5 py-1.5 rounded-full text-xs font-medium bg-white/5 border border-white/10 text-gray-300"
+                className="px-3.5 py-1.5 rounded-full text-xs font-medium bg-white/5 border border-white/10 text-[#D4D4D8]"
               >
                 {tech}
               </span>
