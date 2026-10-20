@@ -21,7 +21,7 @@ export default function Navbar() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <div className="flex-shrink-0">
-            <Link href="/" className="font-bold text-2xl tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-rose-500">
+            <Link href="/" className="font-bold text-2xl tracking-tight text-transparent bg-clip-text hero-gradient-text">
               Sagar
             </Link>
           </div>
@@ -32,7 +32,7 @@ export default function Navbar() {
               <Link 
                 key={link.name} 
                 href={link.href} 
-                className="text-sm font-medium text-gray-300 hover:text-red-500 dark:hover:text-rose-400 transition-colors"
+                className="text-sm font-medium text-[#D4D4D8] hover:text-[#FAFAFA] transition-colors"
               >
                 {link.name}
               </Link>
@@ -41,7 +41,7 @@ export default function Navbar() {
               href="/Sagar_Singh_Thapa_Resume.pdf" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-sm font-medium px-5 py-2 rounded-full border border-red-500/30 bg-red-900/20 text-red-100 hover:bg-red-600/40 hover:text-white transition-all shadow-[0_0_15px_rgba(220,38,38,0.1)] hover:shadow-[0_0_20px_rgba(220,38,38,0.3)] focus:ring-2 focus:ring-red-500 outline-none"
+              className="text-sm font-semibold px-5 py-2 rounded-full border border-[#F472B6]/40 bg-[#F472B6]/10 text-white hover:bg-[#F472B6]/25 transition-all shadow-[0_0_15px_rgba(244,114,182,0.15)] hover:shadow-[0_0_20px_rgba(244,114,182,0.3)] focus:ring-2 focus:ring-[#F472B6] outline-none"
             >
               Resume
             </a>
@@ -67,7 +67,7 @@ export default function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-t border-white/10 backdrop-blur-xl bg-black/80 overflow-hidden"
+            className="md:hidden border-t border-white/10 backdrop-blur-xl bg-black/90 overflow-hidden"
           >
             <div className="px-4 py-4 space-y-2">
               {NAV_LINKS.map((link) => (
@@ -75,7 +75,7 @@ export default function Navbar() {
                   key={link.name}
                   href={link.href}
                   onClick={() => setIsOpen(false)}
-                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-[#D4D4D8] hover:bg-white/10 hover:text-[#FAFAFA] transition-colors"
                 >
                   {link.name}
                 </Link>
@@ -86,7 +86,7 @@ export default function Navbar() {
                   target="_blank" 
                   rel="noopener noreferrer"
                   onClick={() => setIsOpen(false)}
-                  className="block px-3 py-2 rounded-md text-base font-medium text-red-500 dark:text-rose-400 hover:bg-red-900/20 transition-colors"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-[#F472B6] hover:bg-[#F472B6]/10 transition-colors"
                 >
                   Resume
                 </a>

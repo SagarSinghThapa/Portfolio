@@ -20,12 +20,12 @@ export default function FeaturedProjects() {
           className="flex flex-col md:flex-row md:items-end justify-between mb-12"
         >
           <div>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Featured Projects</h2>
-            <div className="w-20 h-1.5 bg-red-600 dark:bg-rose-500 rounded-full" />
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#FAFAFA]">Featured Projects</h2>
+            <div className="w-20 h-1.5 rounded-full bg-gradient-to-r from-[#67E8F9] via-[#A78BFA] to-[#F472B6]" />
           </div>
           <Link
             href="/projects"
-            className="mt-6 md:mt-0 inline-flex items-center gap-2 font-medium text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-rose-400 transition-colors"
+            className="mt-6 md:mt-0 inline-flex items-center gap-2 font-medium text-[#D4D4D8] hover:text-[#67E8F9] transition-colors"
           >
             View all projects <ArrowRight className="w-4 h-4" />
           </Link>

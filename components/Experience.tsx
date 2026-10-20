@@ -46,8 +46,8 @@ export default function Experience() {
           transition={{ duration: 0.5 }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Work Experience</h2>
-          <div className="w-20 h-1.5 bg-red-600 dark:bg-rose-500 mx-auto rounded-full" />
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#FAFAFA]">Work Experience</h2>
+          <div className="w-20 h-1.5 rounded-full bg-gradient-to-r from-[#67E8F9] via-[#A78BFA] to-[#F472B6] mx-auto" />
         </motion.div>
 
         <div className="space-y-12">
@@ -62,31 +62,31 @@ export default function Experience() {
             >
               <div className="md:grid md:grid-cols-4 md:gap-8 items-start">
                 <div className="hidden md:flex flex-col items-end pt-1">
-                  <span className="text-sm font-semibold text-gray-500 dark:text-gray-400">{exp.period}</span>
+                  <span className="text-sm font-semibold text-[#A1A1AA]">{exp.period}</span>
                 </div>
                 
                 <div className="relative md:col-span-3 pb-8 md:pb-12 border-l border-white/10 md:pl-8">
                   {/* Timeline dot */}
-                  <div className="absolute top-0 -left-[5px] md:-left-[5.5px] w-2.5 h-2.5 rounded-full bg-red-600 dark:bg-rose-500 ring-4 ring-black" />
+                  <div className="absolute top-0 -left-[5px] md:-left-[5.5px] w-2.5 h-2.5 rounded-full bg-gradient-to-r from-[#67E8F9] to-[#A78BFA] ring-4 ring-black shadow-[0_0_8px_rgba(103,232,249,0.5)]" />
                   
                   <div className="mb-1 md:hidden">
-                    <span className="text-sm font-semibold text-red-500 dark:text-rose-400">{exp.period}</span>
+                    <span className="text-sm font-semibold text-[#67E8F9]">{exp.period}</span>
                   </div>
                   
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                    <Briefcase className="w-5 h-5 text-gray-400" />
+                  <h3 className="text-xl font-bold text-[#FAFAFA] flex items-center gap-2">
+                    <Briefcase className="w-5 h-5 text-[#67E8F9]" />
                     {exp.role}
                   </h3>
                   
-                  <h4 className="text-lg font-medium text-gray-600 dark:text-gray-300 mb-2">
+                  <h4 className="text-lg font-medium text-[#FAFAFA]/90 mb-2">
                     {exp.company}
                   </h4>
                   
                   {exp.description && (
-                    <p className="text-gray-500 dark:text-gray-400 font-medium mb-4">{exp.description}</p>
+                    <p className="text-[#A1A1AA] font-medium mb-4">{exp.description}</p>
                   )}
                   
-                  <ul className="list-disc list-outside ml-5 space-y-2 text-gray-600 dark:text-gray-400">
+                  <ul className="list-disc list-outside ml-5 space-y-2 text-[#D4D4D8]">
                     {exp.highlights.map((highlight, idx) => (
                       <li key={idx} className="leading-relaxed">{highlight}</li>
                     ))}

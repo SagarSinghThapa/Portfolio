@@ -43,8 +43,8 @@ export default function Skills() {
           transition={{ duration: 0.5 }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Technical Skills</h2>
-          <div className="w-20 h-1.5 bg-red-600 dark:bg-rose-500 mx-auto rounded-full" />
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#FAFAFA]">Technical Skills</h2>
+          <div className="w-20 h-1.5 rounded-full bg-gradient-to-r from-[#67E8F9] via-[#A78BFA] to-[#F472B6] mx-auto" />
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -55,19 +55,19 @@ export default function Skills() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="p-6 backdrop-blur-md bg-black/20 rounded-2xl border border-white/5 shadow-sm hover:shadow-md transition-shadow"
+              className="p-6 backdrop-blur-xl bg-black/30 rounded-2xl border border-white/[0.08] shadow-sm hover:shadow-md hover:border-white/20 transition-all"
             >
               <div className="flex items-center gap-4 mb-6">
-                <div className="p-3 bg-red-900/30 text-red-500 dark:text-rose-400 rounded-xl">
+                <div className="p-3 bg-white/5 border border-white/10 text-[#67E8F9] rounded-xl">
                   {category.icon}
                 </div>
-                <h3 className="text-xl font-semibold">{category.title}</h3>
+                <h3 className="text-xl font-semibold text-[#FAFAFA]">{category.title}</h3>
               </div>
               <div className="flex flex-wrap gap-2">
                 {category.skills.map((skill) => (
                   <span
                     key={skill}
-                    className="px-3 py-1.5 text-sm font-medium bg-black/30 border border-white/10 text-gray-300 rounded-lg hover:border-red-500/50 hover:text-rose-400 transition-all duration-300 motion-safe:hover:-translate-y-0.5 cursor-default hover:bg-black/40"
+                    className="px-3 py-1.5 text-sm font-medium bg-black/40 border border-white/10 text-[#D4D4D8] rounded-lg hover:border-[#67E8F9]/50 hover:text-[#FAFAFA] transition-all duration-300 motion-safe:hover:-translate-y-0.5 cursor-default hover:bg-black/60"
                   >
                     {skill}
                   </span>

@@ -14,8 +14,8 @@ export default function Education() {
           transition={{ duration: 0.5 }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Education</h2>
-          <div className="w-20 h-1.5 bg-red-600 dark:bg-rose-500 mx-auto rounded-full" />
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#FAFAFA]">Education</h2>
+          <div className="w-20 h-1.5 rounded-full bg-gradient-to-r from-[#67E8F9] via-[#A78BFA] to-[#F472B6] mx-auto" />
         </motion.div>
 
         <motion.div
@@ -23,38 +23,38 @@ export default function Education() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="backdrop-blur-md bg-black/20 border border-white/5 rounded-2xl p-8 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden"
+          className="backdrop-blur-xl bg-black/30 border border-white/[0.08] rounded-2xl p-8 shadow-sm hover:shadow-md hover:border-white/20 transition-all relative overflow-hidden"
         >
           {/* Decorative background element */}
           <div className="absolute top-0 right-0 p-8 opacity-5 dark:opacity-10 pointer-events-none">
-            <GraduationCap className="w-48 h-48" />
+            <GraduationCap className="w-48 h-48 text-[#A78BFA]" />
           </div>
 
           <div className="relative z-10">
             <div className="flex items-center gap-3 mb-2">
-              <GraduationCap className="w-8 h-8 text-red-500 dark:text-rose-400" />
-              <h3 className="text-2xl font-bold">Bachelor of Technology</h3>
+              <GraduationCap className="w-8 h-8 text-[#A78BFA]" />
+              <h3 className="text-2xl font-bold text-[#FAFAFA]">Bachelor of Technology</h3>
             </div>
             
-            <h4 className="text-xl font-medium text-gray-800 dark:text-gray-200 mb-2">
+            <h4 className="text-xl font-medium text-[#FAFAFA]/90 mb-2">
               Computer Science and Engineering
             </h4>
             
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between text-gray-600 dark:text-gray-400 mb-6">
-              <p className="font-semibold">University of Petroleum and Energy Studies (UPES)</p>
-              <p className="font-medium bg-red-900/30 text-red-500 dark:text-rose-400 px-3 py-1 rounded-full text-sm inline-block w-max mt-2 sm:mt-0">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between text-[#A1A1AA] mb-6">
+              <p className="font-semibold text-[#D4D4D8]">University of Petroleum and Energy Studies (UPES)</p>
+              <p className="font-medium bg-white/5 border border-white/10 text-[#A78BFA] px-3.5 py-1 rounded-full text-sm inline-block w-max mt-2 sm:mt-0">
                 Expected Graduation: 2027
               </p>
             </div>
 
             <div className="space-y-4">
               <div>
-                <p className="font-bold text-gray-900 dark:text-white mb-1">Specialization:</p>
-                <p className="text-gray-600 dark:text-gray-400">Data Science</p>
+                <p className="font-bold text-[#FAFAFA] mb-1">Specialization:</p>
+                <p className="text-[#D4D4D8]">Data Science</p>
               </div>
               
               <div>
-                <p className="font-bold text-gray-900 dark:text-white mb-2">Relevant Coursework:</p>
+                <p className="font-bold text-[#FAFAFA] mb-2">Relevant Coursework:</p>
                 <div className="flex flex-wrap gap-2">
                   {[
                     "Machine Learning", 
@@ -66,7 +66,7 @@ export default function Education() {
                   ].map((course) => (
                     <span 
                       key={course} 
-                      className="px-3 py-1 bg-black/30 border border-white/10 text-gray-300 rounded-lg text-sm font-medium"
+                      className="px-3 py-1 bg-black/40 border border-white/10 text-[#D4D4D8] rounded-lg text-sm font-medium hover:border-[#A78BFA]/40 transition-colors"
                     >
                       {course}
                     </span>
