@@ -44,7 +44,7 @@ export default function HeroContent({
 
   return (
     <div
-      className="relative z-20 w-full lg:w-[58%] max-w-2xl text-left"
+      className="relative z-20 w-full max-w-md lg:max-w-[460px] xl:max-w-[480px] text-left"
       style={{
         transform: `translateY(${parallaxY}px)`,
         opacity: contentOpacity,
@@ -55,7 +55,7 @@ export default function HeroContent({
         className="p-6 sm:p-8 lg:p-0 rounded-2xl bg-black/40 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none shadow-xl lg:shadow-none text-left"
       >
         {/* Top Header Row with Portfolio Date & Role */}
-        <div className="flex items-center justify-between gap-4 mb-3 max-w-lg">
+        <div className="flex items-center justify-between gap-4 mb-3 max-w-[420px]">
           <p className="text-xs uppercase tracking-widest font-semibold text-rose-400/90">
             PORTFOLIO · 2026
           </p>
@@ -65,7 +65,7 @@ export default function HeroContent({
         </div>
 
         {/* Identity Greeting */}
-        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#FAFAFA] tracking-tight mb-2">
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#FAFAFA] tracking-tight mb-2">
           Hi, I&apos;m{" "}
           <span className="text-transparent bg-clip-text hero-gradient-text">
             Sagar.
@@ -73,7 +73,7 @@ export default function HeroContent({
         </h2>
 
         {/* Headline with animated gradient emphasis */}
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight mb-4 leading-tight text-[#FAFAFA]">
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight mb-4 leading-snug text-[#FAFAFA]">
           <span className="text-transparent bg-clip-text hero-gradient-text">
             Building intelligent solutions
           </span>{" "}
@@ -81,7 +81,7 @@ export default function HeroContent({
         </h1>
 
         {/* Paragraph text — high contrast readability */}
-        <p className="text-sm sm:text-base text-[#D4D4D8] mb-6 leading-relaxed max-w-xl drop-shadow-sm">
+        <p className="text-sm text-[#D4D4D8] mb-6 leading-relaxed max-w-md drop-shadow-sm">
           I work across machine learning, AI-powered applications, and full-stack
           development to turn ideas into useful products.
         </p>
