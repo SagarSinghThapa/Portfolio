@@ -10,6 +10,7 @@ files_modified:
   - components/Skills.tsx
   - components/Experience.tsx
   - components/Education.tsx
+  - components/GitHubActivity.tsx
   - components/Contact.tsx
   - components/Footer.tsx
   - components/GuidedJourney.tsx
@@ -70,6 +71,7 @@ Load for context:
     components/Skills.tsx
     components/Experience.tsx
     components/Education.tsx
+    components/GitHubActivity.tsx
     components/Contact.tsx
     components/Footer.tsx
   </files>
@@ -99,7 +101,12 @@ Load for context:
        - Bullet points / coursework: `text-[#D4D4D8] leading-relaxed`.
        - Timeline indicators: Replace red dots with cyan/violet glowing accent indicators (`bg-gradient-to-r from-[#67E8F9] to-[#A78BFA]`).
 
-    5. **`components/Contact.tsx` & `components/Footer.tsx`:**
+    5. **`components/GitHubActivity.tsx`:**
+       - Section accent bar: Unified gradient bar (`w-20 h-1.5 rounded-full bg-gradient-to-r from-[#67E8F9] via-[#A78BFA] to-[#F472B6] mx-auto`).
+       - Description: `text-[#D4D4D8]`.
+       - Card hover states: Replace `hover:border-red-500/50` and red icons with `border border-white/10 hover:border-[#67E8F9]/40`, icon `text-[#67E8F9]`, title `text-[#FAFAFA] group-hover:text-[#67E8F9]`.
+
+    6. **`components/Contact.tsx` & `components/Footer.tsx`:**
        - Headings: `text-[#FAFAFA]`.
        - Subheadings & descriptions: `text-[#D4D4D8]`.
        - Form labels: `text-[#D4D4D8] text-sm font-medium`.
@@ -107,8 +114,8 @@ Load for context:
        - Submit button: `bg-[#F472B6] hover:bg-[#f358a8] text-gray-950 font-semibold px-8 py-3.5 rounded-full`.
        - Footer: `text-[#A1A1AA] text-sm py-8 border-t border-white/[0.08]`.
 
-    6. AVOID: Do NOT change functional API logic in `Contact.tsx`.
-    7. AVOID: Do NOT break form validation or error message rendering.
+    7. AVOID: Do NOT change functional API logic in `Contact.tsx`.
+    8. AVOID: Do NOT break form validation or error message rendering.
   </action>
   <verify>
     1. `npx tsc --noEmit` passes with exit code 0.

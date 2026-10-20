@@ -6,6 +6,7 @@ depends_on: []
 files_modified:
   - app/globals.css
   - components/hero/HeroContent.tsx
+  - components/hero/Hero.tsx
   - components/About.tsx
 autonomous: true
 
@@ -91,12 +92,16 @@ Load for context:
   <name>Task 2: Restore Hero Identity & Polish Hero and About Glass Cards</name>
   <files>
     components/hero/HeroContent.tsx
+    components/hero/Hero.tsx
     components/About.tsx
   </files>
   <action>
-    Update `components/hero/HeroContent.tsx` and `components/About.tsx` to align with the token system:
+    Update `components/hero/HeroContent.tsx`, `components/hero/Hero.tsx`, and `components/About.tsx` to align with the token system:
 
-    1. **In `components/hero/HeroContent.tsx`:**
+    1. **In `components/hero/Hero.tsx`:**
+       - Ensure the hero `<section>` has `id="hero"` for smooth programmatic anchor navigation from the guided journey widget.
+
+    2. **In `components/hero/HeroContent.tsx`:**
        - Restore the personal greeting "Hi, I'm Sagar" while keeping the ML Engineer role and headline:
          - Supertitle: `PORTFOLIO · 2026` in muted rose/pink (`text-xs uppercase tracking-widest font-semibold text-rose-400/90 mb-2`).
          - Identity Greeting: `Hi, I'm ` + `<span className="hero-gradient-text text-transparent bg-clip-text">Sagar</span>` as an expressive lead-in (`text-2xl sm:text-3xl font-extrabold text-white mb-3 flex items-center gap-2`).
