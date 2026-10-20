@@ -204,7 +204,9 @@ export default function AIChatBot() {
   // --- Progressive Reveal State ---
   const [displayText, setDisplayText] = useState("");
   const revealedLengthRef = useRef(0);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const rafIdRef = useRef<number | null>(null);
+  const lastTickTimeRef = useRef<number>(0);
+  const streamDoneRef = useRef(false);
 
   // Derive streamedText from the last assistant message (read-only, never modified)
   const lastMsg = messages.length > 0 ? messages[messages.length - 1] : null;
@@ -214,15 +216,27 @@ export default function AIChatBot() {
         .map((p: { type: string; text?: string }) => p.text ?? '').join('') ?? '')
     : '';
 
+  const streamedTextRef = useRef(streamedText);
+
+  // Keep streamedTextRef synced with streamedText
+  useEffect(() => {
+    streamedTextRef.current = streamedText;
+  }, [streamedText]);
+
+  // Keep streamDoneRef synced with status
+  useEffect(() => {
+    streamDoneRef.current = status !== "streaming" && status !== "submitted";
+  }, [status]);
+
   // Derive completion state
   const isRevealing = displayText.length < streamedText.length;
 
   const resetRevealState = () => {
     revealedLengthRef.current = 0;
     setDisplayText("");
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
+    if (rafIdRef.current !== null) {
+      cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = null;
     }
   };
 
@@ -260,77 +274,82 @@ export default function AIChatBot() {
     }
   };
 
-  // --- Progressive Reveal Loop ---
+  // --- Progressive Reveal Loop via requestAnimationFrame ---
+  const isAssistantMessage = isLastAssistant && streamedText.length > 0;
+  const lastMsgId = lastMsg?.id;
+
   useEffect(() => {
-    // Clear any existing interval
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-
-    // Nothing to reveal
-    if (!streamedText || streamedText.length === 0) return;
-
-    const isStreamDone = status !== "streaming" && status !== "submitted";
-
-    // Already fully revealed and done
-    if (revealedLengthRef.current >= streamedText.length && isStreamDone) {
-      // Ensure displayText is the full text
-      setDisplayText(streamedText);
+    if (!isAssistantMessage) {
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
       return;
     }
 
-    // Select speed based on streaming state
-    const intervalMs = isStreamDone ? 10 : 30;
-    const wordsPerTick = isStreamDone ? 5 : 2;
+    const isDone = streamDoneRef.current;
+    if (revealedLengthRef.current >= streamedTextRef.current.length && isDone) {
+      setDisplayText(streamedTextRef.current);
+      return;
+    }
 
-    intervalRef.current = setInterval(() => {
+    const tick = (now: number) => {
+      const text = streamedTextRef.current;
+      const done = streamDoneRef.current;
       const currentPos = revealedLengthRef.current;
-      
-      // Already caught up to what's available
-      if (currentPos >= streamedText.length) {
-        if (isStreamDone) {
-          setDisplayText(streamedText);
-          if (intervalRef.current) {
-            clearInterval(intervalRef.current);
-            intervalRef.current = null;
-          }
-        }
+
+      if (currentPos >= text.length && done) {
+        setDisplayText(text);
+        rafIdRef.current = null;
         return;
       }
 
-      // Find candidate position (advance by N words)
-      const candidateEnd = Math.min(
-        advanceByWords(streamedText, currentPos, wordsPerTick),
-        streamedText.length
-      );
+      const intervalMs = done ? 10 : 30;
+      const wordsPerTick = done ? 5 : 2;
 
-      // Find the safe reveal position
-      const safePos = findSafeRevealEnd(streamedText, candidateEnd, isStreamDone);
+      if (now - lastTickTimeRef.current >= intervalMs) {
+        lastTickTimeRef.current = now;
 
-      if (safePos > currentPos) {
-        revealedLengthRef.current = safePos;
-        setDisplayText(streamedText.slice(0, safePos));
-      }
-      // If safePos === currentPos, skip this tick (incomplete construct blocking)
+        if (currentPos < text.length) {
+          const candidateEnd = Math.min(
+            advanceByWords(text, currentPos, wordsPerTick),
+            text.length
+          );
 
-      // Check if fully caught up
-      if (revealedLengthRef.current >= streamedText.length && isStreamDone) {
-        setDisplayText(streamedText);
-        if (intervalRef.current) {
-          clearInterval(intervalRef.current);
-          intervalRef.current = null;
+          let safePos = findSafeRevealEnd(text, candidateEnd, done);
+
+          if (safePos === currentPos && done) {
+            safePos = candidateEnd;
+          }
+
+          if (safePos > currentPos) {
+            revealedLengthRef.current = safePos;
+            setDisplayText(text.slice(0, safePos));
+          }
         }
       }
-    }, intervalMs);
+
+      if (revealedLengthRef.current >= text.length && done) {
+        setDisplayText(text);
+        rafIdRef.current = null;
+        return;
+      }
+
+      rafIdRef.current = requestAnimationFrame(tick);
+    };
+
+    if (rafIdRef.current === null) {
+      lastTickTimeRef.current = performance.now();
+      rafIdRef.current = requestAnimationFrame(tick);
+    }
 
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
       }
     };
-  }, [streamedText, status]);
+  }, [isAssistantMessage, lastMsgId]);
 
   // Determine if a message is the actively revealing assistant message
   const isActiveRevealMessage = useCallback((m: typeof messages[0]) => {
