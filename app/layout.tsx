@@ -42,7 +42,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
     >
-      <body className="min-h-full flex flex-col bg-gray-950 text-gray-100 transition-colors duration-300">
+      <body
+        suppressHydrationWarning
+        className="min-h-full flex flex-col bg-gray-950 text-gray-100 transition-colors duration-300"
+      >
         <Navbar />
         <main className="flex-grow pt-16">
           {children}
