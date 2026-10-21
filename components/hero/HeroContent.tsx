@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useReducedMotion, type Variants } from "framer-motion";
+import { useReducedMotion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 
@@ -12,11 +12,6 @@ interface HeroContentProps {
 }
 
 const TECH_PILLS = ["Python", "PyTorch", "Next.js", "FastAPI"];
-
-/**
- * Standard cubic-bezier easing curve for cinematic motion
- */
-const CUBIC_EASE = [0.16, 1, 0.3, 1] as const;
 
 export default function HeroContent({
   scrollProgress = 0,
@@ -33,41 +28,6 @@ export default function HeroContent({
     ? 1
     : Math.max(0, 1 - scrollProgress / 0.85);
 
-  // Container variants orchestrating the entrance cascade
-  const containerVariants: Variants = {
-    hidden: {
-      opacity: isReducedMotion ? 1 : 0,
-    },
-    visible: {
-      opacity: 1,
-      transition: {
-        delayChildren: isReducedMotion ? 0 : 0.15,
-        staggerChildren: isReducedMotion ? 0 : 0.1,
-      },
-    },
-  };
-
-  // Helper factory for child item variants with distinct stagger delays and de-blur
-  const createItemVariant = (delay: number, y: number = 24): Variants => ({
-    hidden: {
-      opacity: isReducedMotion ? 1 : 0,
-      y: isReducedMotion ? 0 : y,
-      filter: isReducedMotion ? "none" : "blur(6px)",
-    },
-    visible: {
-      opacity: 1,
-      y: 0,
-      filter: "none",
-      transition: isReducedMotion
-        ? { duration: 0 }
-        : {
-            duration: 0.65,
-            delay,
-            ease: CUBIC_EASE,
-          },
-    },
-  });
-
   return (
     <div
       className="relative z-20 w-full max-w-md lg:max-w-[460px] xl:max-w-[480px] text-left"
@@ -76,71 +36,69 @@ export default function HeroContent({
         opacity: contentOpacity,
       }}
     >
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="p-6 sm:p-8 lg:p-0 rounded-2xl bg-black/40 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none shadow-xl lg:shadow-none text-left"
-      >
+      <div className="p-6 sm:p-8 lg:p-0 rounded-2xl bg-black/40 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none shadow-xl lg:shadow-none text-left">
         {/* Top Header Row with Portfolio Date & Role */}
         <div className="flex items-center justify-between gap-4 mb-3 max-w-[420px]">
-          {/* Step 1: Portfolio Eyebrow Label */}
-          <motion.p
-            variants={createItemVariant(0.15, 18)}
-            className="text-xs uppercase tracking-widest font-semibold text-rose-400/90"
+          {/* Step 1: Portfolio Eyebrow Label (150ms) */}
+          <p
+            className="text-xs uppercase tracking-widest font-semibold text-rose-400/90 animate-hero-fade-up"
+            style={{ animationDelay: "150ms" }}
           >
             PORTFOLIO · 2026
-          </motion.p>
+          </p>
 
-          {/* Step 3: Role Label */}
-          <motion.span
-            variants={createItemVariant(0.39, 18)}
-            className="text-[11px] font-bold tracking-wider uppercase text-rose-300/90 bg-rose-950/40 px-3 py-1 rounded-full border border-rose-500/20 backdrop-blur-sm"
+          {/* Step 3: Role Label (390ms) */}
+          <span
+            className="text-[11px] font-bold tracking-wider uppercase text-rose-300/90 bg-rose-950/40 px-3 py-1 rounded-full border border-rose-500/20 backdrop-blur-sm animate-hero-fade-up"
+            style={{ animationDelay: "390ms" }}
           >
             ML ENGINEER
-          </motion.span>
+          </span>
         </div>
 
-        {/* Step 2: Identity Greeting */}
-        <motion.h2
-          variants={createItemVariant(0.27, 24)}
-          className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#FAFAFA] tracking-tight mb-2"
+        {/* Step 2: Identity Greeting (270ms) */}
+        <h2
+          className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#FAFAFA] tracking-tight mb-2 animate-hero-fade-up"
+          style={{ animationDelay: "270ms" }}
         >
           Hi, I&apos;m{" "}
           <span className="text-transparent bg-clip-text hero-gradient-text inline-block descender-safe">
             Sagar.
           </span>
-        </motion.h2>
+        </h2>
 
-        {/* Step 4: Headline with phrase-level reveal & animated gradient */}
+        {/* Step 4: Headline with phrase-level reveal & animated gradient (510ms / 630ms) */}
         <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight mb-4 leading-snug text-[#FAFAFA]">
-          <motion.span
-            variants={createItemVariant(0.51, 24)}
-            className="inline-block text-transparent bg-clip-text hero-gradient-text descender-safe mr-1.5"
+          {/* Outer span handles CSS entrance; inner span handles continuous gradient color cycle */}
+          <span
+            className="inline-block animate-hero-fade-up descender-safe mr-1.5"
+            style={{ animationDelay: "510ms" }}
           >
-            Building intelligent solutions
-          </motion.span>
-          <motion.span
-            variants={createItemVariant(0.63, 24)}
-            className="inline-block descender-safe"
+            <span className="inline-block text-transparent bg-clip-text hero-gradient-text">
+              Building intelligent solutions
+            </span>
+          </span>
+          <span
+            className="inline-block animate-hero-fade-up descender-safe"
+            style={{ animationDelay: "630ms" }}
           >
             for real-world problems.
-          </motion.span>
+          </span>
         </h1>
 
-        {/* Step 5: Paragraph text — high contrast readability */}
-        <motion.p
-          variants={createItemVariant(0.75, 20)}
-          className="text-sm text-[#D4D4D8] mb-6 leading-relaxed max-w-md drop-shadow-sm"
+        {/* Step 5: Paragraph text — high contrast readability (750ms) */}
+        <p
+          className="text-sm text-[#D4D4D8] mb-6 leading-relaxed max-w-md drop-shadow-sm animate-hero-fade-up"
+          style={{ animationDelay: "750ms" }}
         >
           I work across machine learning, AI-powered applications, and full-stack
           development to turn ideas into useful products.
-        </motion.p>
+        </p>
 
-        {/* Step 6: CTA Buttons */}
-        <motion.div
-          variants={createItemVariant(0.87, 20)}
-          className="flex flex-wrap items-center gap-3.5 mb-6"
+        {/* Step 6: CTA Buttons (870ms) */}
+        <div
+          className="flex flex-wrap items-center gap-3.5 mb-6 animate-hero-fade-up"
+          style={{ animationDelay: "870ms" }}
         >
           <Link
             href="/projects"
@@ -155,12 +113,12 @@ export default function HeroContent({
           >
             Contact Me
           </Link>
-        </motion.div>
+        </div>
 
-        {/* Step 7: Technology tags and social links */}
-        <motion.div
-          variants={createItemVariant(0.99, 18)}
-          className="pt-4 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-3 max-w-lg"
+        {/* Step 7: Technology tags and social links (990ms) */}
+        <div
+          className="pt-4 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-3 max-w-lg animate-hero-fade-up"
+          style={{ animationDelay: "990ms" }}
         >
           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
             {TECH_PILLS.map((tech) => (
@@ -197,8 +155,8 @@ export default function HeroContent({
               </svg>
             </a>
           </div>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </div>
   );
 }
