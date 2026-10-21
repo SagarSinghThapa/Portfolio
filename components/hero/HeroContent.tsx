@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 
@@ -14,41 +14,59 @@ interface HeroContentProps {
 const TECH_PILLS = ["Python", "PyTorch", "Next.js", "FastAPI"];
 
 /**
- * Hero HTML content layer — glassmorphic card with role label, animated headline,
- * description, CTA buttons, tech chips, and social links.
- * Positioned above the canvas frame animation (z-20/z-30).
+ * Standard cubic-bezier easing curve for cinematic motion
  */
+const CUBIC_EASE = [0.16, 1, 0.3, 1] as const;
+
 export default function HeroContent({
   scrollProgress = 0,
-  reducedMotion = false,
+  reducedMotion: propReducedMotion = false,
 }: HeroContentProps) {
+  const systemReducedMotion = useReducedMotion();
+  const isReducedMotion = propReducedMotion || Boolean(systemReducedMotion);
+
   // Parallax: content moves up slightly as user scrolls
-  const parallaxY = reducedMotion ? 0 : scrollProgress * -50;
+  const parallaxY = isReducedMotion ? 0 : scrollProgress * -50;
 
   // Opacity: content fades out as user scrolls (fully visible until ~60%)
-  const contentOpacity = reducedMotion
+  const contentOpacity = isReducedMotion
     ? 1
     : Math.max(0, 1 - scrollProgress / 0.85);
 
-  // Animation wrapper — respects reduced motion
-  const getMotionProps = (delay: number, y: number = 20) => {
-    if (reducedMotion) {
-      return {
-        initial: { opacity: 1, y: 0 },
-        animate: { opacity: 1, y: 0 },
-        transition: { duration: 0 },
-      };
-    }
-    return {
-      initial: { opacity: 0, y },
-      animate: { opacity: 1, y: 0 },
+  // Container variants orchestrating the entrance cascade
+  const containerVariants: Variants = {
+    hidden: {
+      opacity: isReducedMotion ? 1 : 0,
+    },
+    visible: {
+      opacity: 1,
       transition: {
-        duration: 0.55,
-        delay,
-        ease: [0.16, 1, 0.3, 1] as const,
+        delayChildren: isReducedMotion ? 0 : 0.15,
+        staggerChildren: isReducedMotion ? 0 : 0.1,
       },
-    };
+    },
   };
+
+  // Helper factory for child item variants with distinct stagger delays and de-blur
+  const createItemVariant = (delay: number, y: number = 24): Variants => ({
+    hidden: {
+      opacity: isReducedMotion ? 1 : 0,
+      y: isReducedMotion ? 0 : y,
+      filter: isReducedMotion ? "none" : "blur(6px)",
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      filter: "none",
+      transition: isReducedMotion
+        ? { duration: 0 }
+        : {
+            duration: 0.65,
+            delay,
+            ease: CUBIC_EASE,
+          },
+    },
+  });
 
   return (
     <div
@@ -58,12 +76,17 @@ export default function HeroContent({
         opacity: contentOpacity,
       }}
     >
-      <div className="p-6 sm:p-8 lg:p-0 rounded-2xl bg-black/40 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none shadow-xl lg:shadow-none text-left">
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="p-6 sm:p-8 lg:p-0 rounded-2xl bg-black/40 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none shadow-xl lg:shadow-none text-left"
+      >
         {/* Top Header Row with Portfolio Date & Role */}
         <div className="flex items-center justify-between gap-4 mb-3 max-w-[420px]">
           {/* Step 1: Portfolio Eyebrow Label */}
           <motion.p
-            {...getMotionProps(0.08, 16)}
+            variants={createItemVariant(0.15, 18)}
             className="text-xs uppercase tracking-widest font-semibold text-rose-400/90"
           >
             PORTFOLIO · 2026
@@ -71,7 +94,7 @@ export default function HeroContent({
 
           {/* Step 3: Role Label */}
           <motion.span
-            {...getMotionProps(0.28, 16)}
+            variants={createItemVariant(0.39, 18)}
             className="text-[11px] font-bold tracking-wider uppercase text-rose-300/90 bg-rose-950/40 px-3 py-1 rounded-full border border-rose-500/20 backdrop-blur-sm"
           >
             ML ENGINEER
@@ -80,7 +103,7 @@ export default function HeroContent({
 
         {/* Step 2: Identity Greeting */}
         <motion.h2
-          {...getMotionProps(0.18, 20)}
+          variants={createItemVariant(0.27, 24)}
           className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#FAFAFA] tracking-tight mb-2"
         >
           Hi, I&apos;m{" "}
@@ -92,13 +115,13 @@ export default function HeroContent({
         {/* Step 4: Headline with phrase-level reveal & animated gradient */}
         <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight mb-4 leading-snug text-[#FAFAFA]">
           <motion.span
-            {...getMotionProps(0.38, 20)}
+            variants={createItemVariant(0.51, 24)}
             className="inline-block text-transparent bg-clip-text hero-gradient-text descender-safe mr-1.5"
           >
             Building intelligent solutions
           </motion.span>
           <motion.span
-            {...getMotionProps(0.48, 20)}
+            variants={createItemVariant(0.63, 24)}
             className="inline-block descender-safe"
           >
             for real-world problems.
@@ -107,7 +130,7 @@ export default function HeroContent({
 
         {/* Step 5: Paragraph text — high contrast readability */}
         <motion.p
-          {...getMotionProps(0.58, 20)}
+          variants={createItemVariant(0.75, 20)}
           className="text-sm text-[#D4D4D8] mb-6 leading-relaxed max-w-md drop-shadow-sm"
         >
           I work across machine learning, AI-powered applications, and full-stack
@@ -116,7 +139,7 @@ export default function HeroContent({
 
         {/* Step 6: CTA Buttons */}
         <motion.div
-          {...getMotionProps(0.68, 20)}
+          variants={createItemVariant(0.87, 20)}
           className="flex flex-wrap items-center gap-3.5 mb-6"
         >
           <Link
@@ -136,7 +159,7 @@ export default function HeroContent({
 
         {/* Step 7: Technology tags and social links */}
         <motion.div
-          {...getMotionProps(0.78, 16)}
+          variants={createItemVariant(0.99, 18)}
           className="pt-4 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-3 max-w-lg"
         >
           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
@@ -175,7 +198,7 @@ export default function HeroContent({
             </a>
           </div>
         </motion.div>
-      </div>
+      </motion.div>
     </div>
   );
 }
