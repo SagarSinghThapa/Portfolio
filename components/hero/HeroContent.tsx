@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useReducedMotion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
@@ -20,6 +21,52 @@ export default function HeroContent({
   const systemReducedMotion = useReducedMotion();
   const isReducedMotion = propReducedMotion || Boolean(systemReducedMotion);
 
+  // Mount-synchronized animation trigger:
+  // Elements start hidden via CSS `.hero-entrance-item`.
+  // After client hydration, we wait one animation frame to guarantee the browser
+  // has painted the hidden state, then add `.hero-mounted` to trigger the cascade.
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const animTimeParam = searchParams.get("anim_time");
+    const reducedMotionParam = searchParams.get("reduced_motion");
+
+    if (reducedMotionParam === "1" || reducedMotionParam === "true") {
+      const id = requestAnimationFrame(() => setIsMounted(true));
+      return () => cancelAnimationFrame(id);
+    }
+
+    // Double-rAF: first rAF queues after the current frame's paint,
+    // second rAF fires before the next frame's paint — guaranteeing
+    // the hidden state was composited to screen before animation starts.
+    const id = requestAnimationFrame(() => {
+      if (isReducedMotion) {
+        setIsMounted(true);
+      } else {
+        requestAnimationFrame(() => {
+          setIsMounted(true);
+          if (animTimeParam !== null) {
+            const targetMs = parseFloat(animTimeParam);
+            // Seek and pause entrance animations at exact target time
+            requestAnimationFrame(() => {
+              const items = document.querySelectorAll(".hero-entrance-item");
+              items.forEach((el) => {
+                el.getAnimations().forEach((a) => {
+                  if (typeof CSSAnimation !== "undefined" && a instanceof CSSAnimation && a.animationName === "hero-fade-up") {
+                    a.pause();
+                    a.currentTime = targetMs;
+                  }
+                });
+              });
+            });
+          }
+        });
+      }
+    });
+    return () => cancelAnimationFrame(id);
+  }, [isReducedMotion]);
+
   // Parallax: content moves up slightly as user scrolls
   const parallaxY = isReducedMotion ? 0 : scrollProgress * -50;
 
@@ -28,9 +75,13 @@ export default function HeroContent({
     ? 1
     : Math.max(0, 1 - scrollProgress / 0.85);
 
+  // Animation class: hidden by default, animated once mounted
+  const entrance = isReducedMotion ? "" : "hero-entrance-item";
+  const mountedClass = isMounted ? "hero-mounted" : "";
+
   return (
     <div
-      className="relative z-20 w-full max-w-md lg:max-w-[460px] xl:max-w-[480px] text-left"
+      className={`relative z-20 w-full max-w-md lg:max-w-[460px] xl:max-w-[480px] text-left ${mountedClass}`}
       style={{
         transform: `translateY(${parallaxY}px)`,
         opacity: contentOpacity,
@@ -41,16 +92,16 @@ export default function HeroContent({
         <div className="flex items-center justify-between gap-4 mb-3 max-w-[420px]">
           {/* Step 1: Portfolio Eyebrow Label (150ms) */}
           <p
-            className="text-xs uppercase tracking-widest font-semibold text-rose-400/90 animate-hero-fade-up"
-            style={{ animationDelay: "150ms" }}
+            className={`text-xs uppercase tracking-widest font-semibold text-rose-400/90 ${entrance}`}
+            style={!isReducedMotion ? { animationDelay: "150ms" } : undefined}
           >
             PORTFOLIO · 2026
           </p>
 
           {/* Step 3: Role Label (390ms) */}
           <span
-            className="text-[11px] font-bold tracking-wider uppercase text-rose-300/90 bg-rose-950/40 px-3 py-1 rounded-full border border-rose-500/20 backdrop-blur-sm animate-hero-fade-up"
-            style={{ animationDelay: "390ms" }}
+            className={`text-[11px] font-bold tracking-wider uppercase text-rose-300/90 bg-rose-950/40 px-3 py-1 rounded-full border border-rose-500/20 backdrop-blur-sm ${entrance}`}
+            style={!isReducedMotion ? { animationDelay: "390ms" } : undefined}
           >
             ML ENGINEER
           </span>
@@ -58,8 +109,8 @@ export default function HeroContent({
 
         {/* Step 2: Identity Greeting (270ms) */}
         <h2
-          className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#FAFAFA] tracking-tight mb-2 animate-hero-fade-up"
-          style={{ animationDelay: "270ms" }}
+          className={`text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#FAFAFA] tracking-tight mb-2 ${entrance}`}
+          style={!isReducedMotion ? { animationDelay: "270ms" } : undefined}
         >
           Hi, I&apos;m{" "}
           <span className="text-transparent bg-clip-text hero-gradient-text inline-block descender-safe">
@@ -71,16 +122,16 @@ export default function HeroContent({
         <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight mb-4 leading-snug text-[#FAFAFA]">
           {/* Outer span handles CSS entrance; inner span handles continuous gradient color cycle */}
           <span
-            className="inline-block animate-hero-fade-up descender-safe mr-1.5"
-            style={{ animationDelay: "510ms" }}
+            className={`inline-block ${entrance} descender-safe mr-1.5`}
+            style={!isReducedMotion ? { animationDelay: "510ms" } : undefined}
           >
             <span className="inline-block text-transparent bg-clip-text hero-gradient-text">
               Building intelligent solutions
             </span>
           </span>
           <span
-            className="inline-block animate-hero-fade-up descender-safe"
-            style={{ animationDelay: "630ms" }}
+            className={`inline-block ${entrance} descender-safe`}
+            style={!isReducedMotion ? { animationDelay: "630ms" } : undefined}
           >
             for real-world problems.
           </span>
@@ -88,8 +139,8 @@ export default function HeroContent({
 
         {/* Step 5: Paragraph text — high contrast readability (750ms) */}
         <p
-          className="text-sm text-[#D4D4D8] mb-6 leading-relaxed max-w-md drop-shadow-sm animate-hero-fade-up"
-          style={{ animationDelay: "750ms" }}
+          className={`text-sm text-[#D4D4D8] mb-6 leading-relaxed max-w-md drop-shadow-sm ${entrance}`}
+          style={!isReducedMotion ? { animationDelay: "750ms" } : undefined}
         >
           I work across machine learning, AI-powered applications, and full-stack
           development to turn ideas into useful products.
@@ -97,8 +148,8 @@ export default function HeroContent({
 
         {/* Step 6: CTA Buttons (870ms) */}
         <div
-          className="flex flex-wrap items-center gap-3.5 mb-6 animate-hero-fade-up"
-          style={{ animationDelay: "870ms" }}
+          className={`flex flex-wrap items-center gap-3.5 mb-6 ${entrance}`}
+          style={!isReducedMotion ? { animationDelay: "870ms" } : undefined}
         >
           <Link
             href="/projects"
@@ -117,8 +168,8 @@ export default function HeroContent({
 
         {/* Step 7: Technology tags and social links (990ms) */}
         <div
-          className="pt-4 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-3 max-w-lg animate-hero-fade-up"
-          style={{ animationDelay: "990ms" }}
+          className={`pt-4 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-3 max-w-lg ${entrance}`}
+          style={!isReducedMotion ? { animationDelay: "990ms" } : undefined}
         >
           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
             {TECH_PILLS.map((tech) => (

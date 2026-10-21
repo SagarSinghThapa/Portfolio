@@ -56,7 +56,10 @@ body {
   animation: hero-bounce 2s ease-in-out infinite;
 }
 
-/* Hero entrance staggered fade-up animation (CSS compositor driven on first paint) */
+/* Hero entrance: mount-synchronized staggered fade-up animation.
+   Elements start hidden. Animation triggers only when parent gets .hero-mounted
+   class via client-side useEffect + requestAnimationFrame, guaranteeing the user
+   sees the full cascade after First Contentful Paint. */
 @keyframes hero-fade-up {
   0% {
     opacity: 0;
@@ -70,8 +73,27 @@ body {
   }
 }
 
-.animate-hero-fade-up {
-  animation: hero-fade-up 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+/* Fail-safe: if JS never mounts, reveal text after 2.5s so content is never permanently hidden */
+@keyframes hero-failsafe-reveal {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0px);
+  }
+}
+
+/* Initial hidden state for hero entrance items (applied before mount) */
+.hero-entrance-item {
+  opacity: 0;
+  transform: translateY(24px);
+  filter: blur(6px);
+  /* Fail-safe: auto-reveal after 2.5s if .hero-mounted is never added */
+  animation: hero-failsafe-reveal 0ms 2500ms both;
+}
+
+/* Once parent gets .hero-mounted (client paint confirmed), run the real entrance */
+.hero-mounted .hero-entrance-item {
+  animation: hero-fade-up 750ms cubic-bezier(0.16, 1, 0.3, 1) both;
   will-change: opacity, transform, filter;
 }
 
@@ -94,7 +116,7 @@ body {
     --motion-reveal-distance: 0px;
   }
 
-  .animate-hero-fade-up {
+  .hero-entrance-item {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
