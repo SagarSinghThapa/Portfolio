@@ -139,6 +139,12 @@ html {
   animation: gradient-shift 9s ease-in-out infinite;
 }
 
+/* Prevent descender clipping on clipped gradient text */
+.descender-safe {
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-gradient-text,
   .hero-gradient-text {

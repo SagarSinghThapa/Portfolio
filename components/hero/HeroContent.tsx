@@ -30,15 +30,23 @@ export default function HeroContent({
     ? 1
     : Math.max(0, 1 - scrollProgress / 0.85);
 
-  // Animation wrapper — disables framer-motion when reduced motion is on
-  const MotionDiv = reducedMotion ? "div" : motion.div;
-
-  const getMotionProps = (delay: number, y: number = 24) => {
-    if (reducedMotion) return {};
+  // Animation wrapper — respects reduced motion
+  const getMotionProps = (delay: number, y: number = 20) => {
+    if (reducedMotion) {
+      return {
+        initial: { opacity: 1, y: 0 },
+        animate: { opacity: 1, y: 0 },
+        transition: { duration: 0 },
+      };
+    }
     return {
-      initial: { opacity: 0, y, filter: "blur(8px)" },
-      animate: { opacity: 1, y: 0, filter: "blur(0px)" },
-      transition: { duration: 0.8, delay, ease: "easeOut" as const },
+      initial: { opacity: 0, y },
+      animate: { opacity: 1, y: 0 },
+      transition: {
+        duration: 0.55,
+        delay,
+        ease: [0.16, 1, 0.3, 1] as const,
+      },
     };
   };
 
@@ -50,44 +58,67 @@ export default function HeroContent({
         opacity: contentOpacity,
       }}
     >
-      <MotionDiv
-        {...getMotionProps(0.3)}
-        className="p-6 sm:p-8 lg:p-0 rounded-2xl bg-black/40 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none shadow-xl lg:shadow-none text-left"
-      >
+      <div className="p-6 sm:p-8 lg:p-0 rounded-2xl bg-black/40 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none shadow-xl lg:shadow-none text-left">
         {/* Top Header Row with Portfolio Date & Role */}
         <div className="flex items-center justify-between gap-4 mb-3 max-w-[420px]">
-          <p className="text-xs uppercase tracking-widest font-semibold text-rose-400/90">
+          {/* Step 1: Portfolio Eyebrow Label */}
+          <motion.p
+            {...getMotionProps(0.08, 16)}
+            className="text-xs uppercase tracking-widest font-semibold text-rose-400/90"
+          >
             PORTFOLIO · 2026
-          </p>
-          <span className="text-[11px] font-bold tracking-wider uppercase text-rose-300/90 bg-rose-950/40 px-3 py-1 rounded-full border border-rose-500/20 backdrop-blur-sm">
+          </motion.p>
+
+          {/* Step 3: Role Label */}
+          <motion.span
+            {...getMotionProps(0.28, 16)}
+            className="text-[11px] font-bold tracking-wider uppercase text-rose-300/90 bg-rose-950/40 px-3 py-1 rounded-full border border-rose-500/20 backdrop-blur-sm"
+          >
             ML ENGINEER
-          </span>
+          </motion.span>
         </div>
 
-        {/* Identity Greeting */}
-        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#FAFAFA] tracking-tight mb-2">
+        {/* Step 2: Identity Greeting */}
+        <motion.h2
+          {...getMotionProps(0.18, 20)}
+          className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#FAFAFA] tracking-tight mb-2"
+        >
           Hi, I&apos;m{" "}
-          <span className="text-transparent bg-clip-text hero-gradient-text">
+          <span className="text-transparent bg-clip-text hero-gradient-text inline-block descender-safe">
             Sagar.
           </span>
-        </h2>
+        </motion.h2>
 
-        {/* Headline with animated gradient emphasis */}
+        {/* Step 4: Headline with phrase-level reveal & animated gradient */}
         <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight mb-4 leading-snug text-[#FAFAFA]">
-          <span className="text-transparent bg-clip-text hero-gradient-text">
+          <motion.span
+            {...getMotionProps(0.38, 20)}
+            className="inline-block text-transparent bg-clip-text hero-gradient-text descender-safe mr-1.5"
+          >
             Building intelligent solutions
-          </span>{" "}
-          for real-world problems.
+          </motion.span>
+          <motion.span
+            {...getMotionProps(0.48, 20)}
+            className="inline-block descender-safe"
+          >
+            for real-world problems.
+          </motion.span>
         </h1>
 
-        {/* Paragraph text — high contrast readability */}
-        <p className="text-sm text-[#D4D4D8] mb-6 leading-relaxed max-w-md drop-shadow-sm">
+        {/* Step 5: Paragraph text — high contrast readability */}
+        <motion.p
+          {...getMotionProps(0.58, 20)}
+          className="text-sm text-[#D4D4D8] mb-6 leading-relaxed max-w-md drop-shadow-sm"
+        >
           I work across machine learning, AI-powered applications, and full-stack
           development to turn ideas into useful products.
-        </p>
+        </motion.p>
 
-        {/* CTA Buttons */}
-        <div className="flex flex-wrap items-center gap-3.5 mb-6">
+        {/* Step 6: CTA Buttons */}
+        <motion.div
+          {...getMotionProps(0.68, 20)}
+          className="flex flex-wrap items-center gap-3.5 mb-6"
+        >
           <Link
             href="/projects"
             className="px-6 py-3 bg-[#F472B6] hover:bg-[#f358a8] text-gray-950 font-semibold rounded-full flex items-center gap-2 shadow-lg hover:scale-105 active:scale-95 transition-all focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent text-sm"
@@ -101,10 +132,13 @@ export default function HeroContent({
           >
             Contact Me
           </Link>
-        </div>
+        </motion.div>
 
-        {/* Technology tags and social links */}
-        <div className="pt-4 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-3 max-w-lg">
+        {/* Step 7: Technology tags and social links */}
+        <motion.div
+          {...getMotionProps(0.78, 16)}
+          className="pt-4 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-3 max-w-lg"
+        >
           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
             {TECH_PILLS.map((tech) => (
               <span
@@ -140,8 +174,8 @@ export default function HeroContent({
               </svg>
             </a>
           </div>
-        </div>
-      </MotionDiv>
+        </motion.div>
+      </div>
     </div>
   );
 }
